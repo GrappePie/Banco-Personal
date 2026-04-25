@@ -1,0 +1,114 @@
+{
+  "app": {
+    "title": "Личный банк",
+    "subtitle": "Управляйте личными займами",
+    "loading": "Загрузка Личного банка..."
+  },
+  "nav": {
+    "dashboard": "Панель",
+    "newLoan": "Новый займ",
+    "viewReport": "Отчет",
+    "detectingLocation": "Определение местоположения...",
+    "localeTooltip": "Приблизительное определение по публичному IP. Ваш IP не сохраняется.",
+    "language": "Язык"
+  },
+  "language": {
+    "es": "Испанский",
+    "en": "Английский",
+    "ro": "Румынский",
+    "ru": "Русский"
+  },
+  "empty": {
+    "welcome": "Добро пожаловать в Личный банк",
+    "description": "Начните с создания первого личного займа",
+    "createFirstLoan": "Создать первый займ",
+    "noLoans": "У вас нет зарегистрированных займов",
+    "new": "Новый"
+  },
+  "status": {
+    "paid": "Оплачен",
+    "partial": "Частично",
+    "pending": "Ожидает"
+  },
+  "dashboard": {
+    "edit": "Изменить",
+    "months": "месяцев",
+    "monthly": "в месяц",
+    "stats": {
+      "totalBorrowed": "Всего занято",
+      "monthlyBasePayment": "Базовый ежемесячный платеж",
+      "totalProjected": "Прогнозируемая сумма",
+      "totalPaid": "Всего оплачено",
+      "normalInterest": "Обычные проценты",
+      "extraInterest": "Доп. проценты",
+      "pendingBalance": "Остаток долга"
+    },
+    "progress": "Прогресс займа",
+    "paid": "Оплачено",
+    "total": "Всего"
+  },
+  "form": {
+    "editTitle": "Изменить займ",
+    "newTitle": "Новый займ",
+    "loanName": "Название займа",
+    "loanNamePlaceholder": "Напр.: RTX 5070 TUF",
+    "amount": "Сумма займа (MXN)",
+    "term": "Срок в месяцах",
+    "other": "Другое",
+    "customTermPlaceholder": "Количество месяцев",
+    "monthlyInterestRate": "Ежемесячная процентная ставка (%)",
+    "interestType": "Тип процентов",
+    "flat": "Фиксированные",
+    "declining": "На остаток",
+    "flatDescription": "Проценты всегда рассчитываются от первоначальной суммы займа.",
+    "decliningDescription": "Проценты рассчитываются от остатка долга и уменьшаются каждый месяц.",
+    "startDate": "Дата начала",
+    "sourceAccount": "Исходный счет",
+    "sourceAccountPlaceholder": "Напр.: Revolut, BBVA и т. д.",
+    "notes": "Заметки",
+    "notesPlaceholder": "Дополнительные заметки...",
+    "saveChanges": "Сохранить изменения",
+    "createLoan": "Создать займ",
+    "cancel": "Отмена",
+    "defaultLoanName": "Займ без названия",
+    "defaultSourceAccount": "Не указано"
+  },
+  "selector": {
+    "editLoan": "Изменить займ",
+    "deleteLoan": "Удалить займ",
+    "confirmDelete": "Удалить займ \"{{name}}\"?"
+  },
+  "payments": {
+    "title": "Календарь платежей",
+    "reset": "Сбросить платежи",
+    "month": "Месяц",
+    "estimatedDate": "Расчетная дата",
+    "date": "Дата",
+    "principal": "Основной долг",
+    "interest": "Проценты",
+    "previousBalance": "Пред. остаток",
+    "extraInterest": "Доп. проценты",
+    "total": "Всего",
+    "paid": "Оплачено",
+    "balance": "Остаток",
+    "status": "Статус",
+    "actions": "Действия",
+    "amount": "Сумма",
+    "amountToPay": "Сумма к оплате",
+    "pay": "Оплатить",
+    "complete": "Полностью",
+    "registerPayment": "Зарегистрировать платеж",
+    "payFull": "Оплатить полностью"
+  },
+  "reports": {
+    "title": "Отчет по займу",
+    "print": "Печать / PDF",
+    "csv": "CSV",
+    "html": "HTML",
+    "close": "Закрыть",
+    "account": "Счет",
+    "start": "Начало",
+    "detail": "Детали платежей",
+    "generated": "Отчет создан {{date}} • Личный банк"
+  }
+}
