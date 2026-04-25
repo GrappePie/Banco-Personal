@@ -12,6 +12,12 @@
     "localeTooltip": "Detecție aproximativă prin IP public. IP-ul tău nu este salvat.",
     "language": "Limbă"
   },
+  "currency": {
+    "estimatedLocal": "Aprox. în moneda locală",
+    "rate": "Curs valutar",
+    "loading": "Se calculează conversia...",
+    "unavailable": "Conversia nu este disponibilă"
+  },
   "language": {
     "es": "Spaniolă",
     "en": "Engleză",

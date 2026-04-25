@@ -5,67 +5,71 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Pencil, Wallet, CalendarDays, BarChart3, CheckCircle2, TrendingUp, AlertTriangle, Clock } from 'lucide-react'
 import type { Loan, LoanSummary } from '@/lib/loan-types'
-import { calculateLoanSummary, formatCurrency, formatPercentage } from '@/lib/loan-calculations'
+import { calculateLoanSummary, formatPercentage } from '@/lib/loan-calculations'
+import { useI18n } from '@/src/i18n/i18n-provider'
+import { useLocalizedCurrency } from '@/hooks/use-localized-currency'
 
 interface DashboardProps {
   loan: Loan
   onEdit?: () => void
 }
 
-function getStatusBadge(status: LoanSummary['status']) {
+function getStatusBadge(status: LoanSummary['status'], t: (key: string) => string) {
   switch (status) {
     case 'pagado':
-      return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Pagado</Badge>
+      return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">{t('status.paid')}</Badge>
     case 'parcial':
-      return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Parcial</Badge>
+      return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">{t('status.partial')}</Badge>
     case 'pendiente':
     default:
-      return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Pendiente</Badge>
+      return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">{t('status.pending')}</Badge>
   }
 }
 
 export function Dashboard({ loan, onEdit }: DashboardProps) {
+  const { t } = useI18n()
+  const { formatCurrency } = useLocalizedCurrency()
   const summary = calculateLoanSummary(loan)
 
   const stats = [
     {
-      label: 'Total Prestado',
+      label: t('dashboard.stats.totalBorrowed'),
       value: formatCurrency(summary.totalBorrowed),
       icon: Wallet,
       color: 'text-orange-400',
     },
     {
-      label: 'Pago Base Mensual',
+      label: t('dashboard.stats.monthlyBasePayment'),
       value: formatCurrency(summary.monthlyBasePayment),
       icon: CalendarDays,
       color: 'text-blue-400',
     },
     {
-      label: 'Total Proyectado',
+      label: t('dashboard.stats.totalProjected'),
       value: formatCurrency(summary.totalProjected),
       icon: BarChart3,
       color: 'text-purple-400',
     },
     {
-      label: 'Total Pagado',
+      label: t('dashboard.stats.totalPaid'),
       value: formatCurrency(summary.totalPaid),
       icon: CheckCircle2,
       color: 'text-emerald-400',
     },
     {
-      label: 'Interés Normal',
+      label: t('dashboard.stats.normalInterest'),
       value: formatCurrency(summary.normalInterestTotal),
       icon: TrendingUp,
       color: 'text-cyan-400',
     },
     {
-      label: 'Interés Extra',
+      label: t('dashboard.stats.extraInterest'),
       value: formatCurrency(summary.extraInterestTotal),
       icon: AlertTriangle,
       color: 'text-amber-400',
     },
     {
-      label: 'Saldo Pendiente',
+      label: t('dashboard.stats.pendingBalance'),
       value: formatCurrency(summary.pendingBalance),
       icon: Clock,
       color: 'text-rose-400',
@@ -74,13 +78,12 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
 
   return (
     <div className="space-y-6">
-      {/* Loan Header */}
       <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div>
             <CardTitle className="text-2xl font-bold text-foreground">{loan.name}</CardTitle>
             <p className="text-muted-foreground text-sm mt-1">
-              {loan.termMonths} meses • {formatPercentage(loan.monthlyInterestRate)} mensual • {loan.sourceAccount}
+              {loan.termMonths} {t('dashboard.months')} • {formatPercentage(loan.monthlyInterestRate)} {t('dashboard.monthly')} • {loan.sourceAccount}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -92,15 +95,14 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
                 className="border-border/50 hover:bg-muted"
               >
                 <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                Editar
+                {t('dashboard.edit')}
               </Button>
             )}
-            {getStatusBadge(summary.status)}
+            {getStatusBadge(summary.status, t)}
           </div>
         </CardHeader>
       </Card>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {stats.map((stat) => (
           <Card key={stat.label} className="bg-card/50 border-border/50 backdrop-blur-sm hover:bg-card/70 transition-colors">
@@ -115,11 +117,10 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
         ))}
       </div>
 
-      {/* Progress Bar */}
       <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
         <CardContent className="p-6">
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Progreso del Préstamo</span>
+            <span className="text-muted-foreground">{t('dashboard.progress')}</span>
             <span className="text-foreground font-medium">
               {summary.totalBorrowed > 0 
                 ? Math.min(100, Math.round((summary.totalPaid / summary.totalProjected) * 100))
@@ -137,8 +138,8 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
             />
           </div>
           <div className="flex justify-between text-xs mt-2 text-muted-foreground">
-            <span>Pagado: {formatCurrency(summary.totalPaid)}</span>
-            <span>Total: {formatCurrency(summary.totalProjected)}</span>
+            <span>{t('dashboard.paid')}: {formatCurrency(summary.totalPaid)}</span>
+            <span>{t('dashboard.total')}: {formatCurrency(summary.totalProjected)}</span>
           </div>
         </CardContent>
       </Card>
