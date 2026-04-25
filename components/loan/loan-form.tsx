@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { FileText } from 'lucide-react'
 import type { Loan, InterestType } from '@/lib/loan-types'
 import { getTodayDate, sanitizeNumber, sanitizeTermMonths, sanitizeInterestRate } from '@/lib/loan-calculations'
+import { useI18n } from '@/src/i18n/i18n-provider'
 
 interface LoanFormProps {
   onSubmit: (loan: Omit<Loan, 'id' | 'createdAt' | 'payments'>) => void
@@ -19,6 +20,7 @@ interface LoanFormProps {
 const TERM_OPTIONS = [1, 2, 3, 4, 5, 6, 9, 12]
 
 export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
+  const { t } = useI18n()
   const [name, setName] = useState(initialData?.name || '')
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '')
   const [termMonths, setTermMonths] = useState(initialData?.termMonths?.toString() || '4')
@@ -36,13 +38,13 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
     const finalTerm = useCustomTerm ? sanitizeTermMonths(customTerm) : sanitizeTermMonths(termMonths)
 
     onSubmit({
-      name: name.trim() || 'Préstamo sin nombre',
+      name: name.trim() || t('form.defaultLoanName'),
       amount: sanitizeNumber(amount),
       termMonths: finalTerm,
       monthlyInterestRate: sanitizeInterestRate(monthlyInterestRate),
       interestType,
       startDate: startDate || getTodayDate(),
-      sourceAccount: sourceAccount.trim() || 'No especificada',
+      sourceAccount: sourceAccount.trim() || t('form.defaultSourceAccount'),
       notes: notes.trim(),
     })
   }
@@ -52,26 +54,24 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
       <CardHeader>
         <CardTitle className="text-xl text-foreground flex items-center gap-2">
           <FileText className="h-5 w-5 text-orange-400" />
-          {initialData ? 'Editar Préstamo' : 'Nuevo Préstamo'}
+          {initialData ? t('form.editTitle') : t('form.newTitle')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-foreground">Nombre del Préstamo</Label>
+            <Label htmlFor="name" className="text-foreground">{t('form.loanName')}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: RTX 5070 TUF"
+              placeholder={t('form.loanNamePlaceholder')}
               className="bg-background/50 border-border/50"
             />
           </div>
 
-          {/* Amount */}
           <div className="space-y-2">
-            <Label htmlFor="amount" className="text-foreground">Monto del Préstamo (MXN)</Label>
+            <Label htmlFor="amount" className="text-foreground">{t('form.amount')}</Label>
             <Input
               id="amount"
               type="number"
@@ -84,9 +84,8 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
             />
           </div>
 
-          {/* Term */}
           <div className="space-y-2">
-            <Label className="text-foreground">Plazo en Meses</Label>
+            <Label className="text-foreground">{t('form.term')}</Label>
             <div className="flex flex-wrap gap-2">
               {TERM_OPTIONS.map((term) => (
                 <Button
@@ -116,7 +115,7 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
                   : 'border-border/50 hover:bg-muted'
                 }
               >
-                Otro
+                {t('form.other')}
               </Button>
             </div>
             {useCustomTerm && (
@@ -125,15 +124,14 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
                 min="1"
                 value={customTerm}
                 onChange={(e) => setCustomTerm(e.target.value)}
-                placeholder="Número de meses"
+                placeholder={t('form.customTermPlaceholder')}
                 className="bg-background/50 border-border/50 mt-2"
               />
             )}
           </div>
 
-          {/* Interest Rate */}
           <div className="space-y-2">
-            <Label htmlFor="rate" className="text-foreground">Tasa de Interés Mensual (%)</Label>
+            <Label htmlFor="rate" className="text-foreground">{t('form.monthlyInterestRate')}</Label>
             <Input
               id="rate"
               type="number"
@@ -146,9 +144,8 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
             />
           </div>
 
-          {/* Interest Type */}
           <div className="space-y-2">
-            <Label className="text-foreground">Tipo de Interés</Label>
+            <Label className="text-foreground">{t('form.interestType')}</Label>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -160,7 +157,7 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
                   : 'border-border/50 hover:bg-muted flex-1'
                 }
               >
-                Fijo
+                {t('form.flat')}
               </Button>
               <Button
                 type="button"
@@ -172,20 +169,19 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
                   : 'border-border/50 hover:bg-muted flex-1'
                 }
               >
-                Sobre saldo
+                {t('form.declining')}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
               {interestType === 'flat' 
-                ? 'El interés se calcula siempre sobre el monto original del préstamo.'
-                : 'El interés se calcula sobre el saldo restante (disminuye cada mes).'
+                ? t('form.flatDescription')
+                : t('form.decliningDescription')
               }
             </p>
           </div>
 
-          {/* Start Date */}
           <div className="space-y-2">
-            <Label htmlFor="startDate" className="text-foreground">Fecha de Inicio</Label>
+            <Label htmlFor="startDate" className="text-foreground">{t('form.startDate')}</Label>
             <Input
               id="startDate"
               type="date"
@@ -195,38 +191,35 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
             />
           </div>
 
-          {/* Source Account */}
           <div className="space-y-2">
-            <Label htmlFor="account" className="text-foreground">Cuenta Origen</Label>
+            <Label htmlFor="account" className="text-foreground">{t('form.sourceAccount')}</Label>
             <Input
               id="account"
               value={sourceAccount}
               onChange={(e) => setSourceAccount(e.target.value)}
-              placeholder="Ej: Revolut, BBVA, etc."
+              placeholder={t('form.sourceAccountPlaceholder')}
               className="bg-background/50 border-border/50"
             />
           </div>
 
-          {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes" className="text-foreground">Notas</Label>
+            <Label htmlFor="notes" className="text-foreground">{t('form.notes')}</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Notas adicionales..."
+              placeholder={t('form.notesPlaceholder')}
               rows={3}
               className="bg-background/50 border-border/50"
             />
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3 pt-4">
             <Button 
               type="submit" 
               className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
             >
-              {initialData ? 'Guardar Cambios' : 'Crear Préstamo'}
+              {initialData ? t('form.saveChanges') : t('form.createLoan')}
             </Button>
             {onCancel && (
               <Button 
@@ -235,7 +228,7 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
                 onClick={onCancel}
                 className="border-border/50 hover:bg-muted"
               >
-                Cancelar
+                {t('form.cancel')}
               </Button>
             )}
           </div>
