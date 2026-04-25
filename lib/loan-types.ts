@@ -1,5 +1,6 @@
 export type PaymentStatus = 'pendiente' | 'parcial' | 'pagado'
 export type LoanStatus = 'pendiente' | 'parcial' | 'pagado'
+export type InterestType = 'flat' | 'declining'
 
 export interface PaymentMonth {
   monthNumber: number
@@ -21,6 +22,7 @@ export interface Loan {
   amount: number
   termMonths: number
   monthlyInterestRate: number
+  interestType: InterestType // 'flat' = fixed on original amount, 'declining' = on remaining balance
   startDate: string
   sourceAccount: string
   notes: string

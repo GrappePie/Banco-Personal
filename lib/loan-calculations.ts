@@ -57,20 +57,25 @@ export function generatePaymentSchedule(loan: Loan): PaymentMonth[] {
   const amount = sanitizeNumber(loan.amount)
   const termMonths = sanitizeTermMonths(loan.termMonths)
   const monthlyRate = sanitizeInterestRate(loan.monthlyInterestRate) / 100
+  const interestType = loan.interestType || 'flat' // Default to flat for backwards compatibility
 
   const monthlyPrincipal = amount / termMonths
   const startDate = new Date(loan.startDate)
   
   const payments: PaymentMonth[] = []
   let carryOverBalance = 0
-  let remainingPrincipal = amount // Track remaining principal for interest calculation
+  let remainingPrincipal = amount // Track remaining principal for declining interest
 
   for (let i = 0; i < termMonths; i++) {
     const paymentDate = new Date(startDate)
     paymentDate.setMonth(paymentDate.getMonth() + i + 1)
 
-    // Interest is calculated on remaining principal, not on the monthly payment
-    const normalInterest = remainingPrincipal * monthlyRate
+    // Interest calculation depends on type:
+    // - 'flat': always on original amount
+    // - 'declining': on remaining principal
+    const normalInterest = interestType === 'flat' 
+      ? amount * monthlyRate 
+      : remainingPrincipal * monthlyRate
     const extraInterest = carryOverBalance * monthlyRate
     const totalDue = monthlyPrincipal + normalInterest + carryOverBalance + extraInterest
 
@@ -120,21 +125,26 @@ export function recalculatePayments(loan: Loan): PaymentMonth[] {
   const amount = sanitizeNumber(loan.amount)
   const termMonths = sanitizeTermMonths(loan.termMonths)
   const monthlyRate = sanitizeInterestRate(loan.monthlyInterestRate) / 100
+  const interestType = loan.interestType || 'flat' // Default to flat for backwards compatibility
 
   const monthlyPrincipal = amount / termMonths
   const startDate = new Date(loan.startDate)
   
   const payments: PaymentMonth[] = []
   let carryOverBalance = 0
-  let remainingPrincipal = amount // Track remaining principal for interest calculation
+  let remainingPrincipal = amount // Track remaining principal for declining interest
 
   for (let i = 0; i < termMonths; i++) {
     const paymentDate = new Date(startDate)
     paymentDate.setMonth(paymentDate.getMonth() + i + 1)
 
     const previousBalance = carryOverBalance
-    // Interest is calculated on remaining principal, not on the monthly payment
-    const normalInterest = remainingPrincipal * monthlyRate
+    // Interest calculation depends on type:
+    // - 'flat': always on original amount
+    // - 'declining': on remaining principal
+    const normalInterest = interestType === 'flat' 
+      ? amount * monthlyRate 
+      : remainingPrincipal * monthlyRate
     const extraInterest = previousBalance * monthlyRate
     const totalDue = monthlyPrincipal + normalInterest + previousBalance + extraInterest
 
@@ -190,9 +200,11 @@ export function calculateLoanSummary(loan: Loan): LoanSummary {
   const amount = sanitizeNumber(loan.amount)
   const termMonths = sanitizeTermMonths(loan.termMonths)
   const monthlyRate = sanitizeInterestRate(loan.monthlyInterestRate) / 100
+  const interestType = loan.interestType || 'flat'
 
   const monthlyPrincipal = amount / termMonths
-  // First month has highest interest (on full principal)
+  // For flat rate, interest is always on original amount
+  // For declining, first month has highest interest (on full principal)
   const firstMonthInterest = amount * monthlyRate
   const baseMonthlyPayment = monthlyPrincipal + firstMonthInterest
 

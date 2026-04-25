@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import type { Loan } from '@/lib/loan-types'
+import { FileText } from 'lucide-react'
+import type { Loan, InterestType } from '@/lib/loan-types'
 import { getTodayDate, sanitizeNumber, sanitizeTermMonths, sanitizeInterestRate } from '@/lib/loan-calculations'
 
 interface LoanFormProps {
@@ -24,6 +25,7 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
   const [customTerm, setCustomTerm] = useState('')
   const [useCustomTerm, setUseCustomTerm] = useState(false)
   const [monthlyInterestRate, setMonthlyInterestRate] = useState(initialData?.monthlyInterestRate?.toString() || '1.2')
+  const [interestType, setInterestType] = useState<InterestType>(initialData?.interestType || 'flat')
   const [startDate, setStartDate] = useState(initialData?.startDate || getTodayDate())
   const [sourceAccount, setSourceAccount] = useState(initialData?.sourceAccount || '')
   const [notes, setNotes] = useState(initialData?.notes || '')
@@ -38,6 +40,7 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
       amount: sanitizeNumber(amount),
       termMonths: finalTerm,
       monthlyInterestRate: sanitizeInterestRate(monthlyInterestRate),
+      interestType,
       startDate: startDate || getTodayDate(),
       sourceAccount: sourceAccount.trim() || 'No especificada',
       notes: notes.trim(),
@@ -48,7 +51,7 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
     <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-xl text-foreground flex items-center gap-2">
-          <span>📝</span>
+          <FileText className="h-5 w-5 text-orange-400" />
           {initialData ? 'Editar Préstamo' : 'Nuevo Préstamo'}
         </CardTitle>
       </CardHeader>
@@ -141,6 +144,43 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
               placeholder="1.2"
               className="bg-background/50 border-border/50"
             />
+          </div>
+
+          {/* Interest Type */}
+          <div className="space-y-2">
+            <Label className="text-foreground">Tipo de Interés</Label>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={interestType === 'flat' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setInterestType('flat')}
+                className={interestType === 'flat' 
+                  ? 'bg-orange-500 hover:bg-orange-600 text-white flex-1' 
+                  : 'border-border/50 hover:bg-muted flex-1'
+                }
+              >
+                Fijo
+              </Button>
+              <Button
+                type="button"
+                variant={interestType === 'declining' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setInterestType('declining')}
+                className={interestType === 'declining' 
+                  ? 'bg-orange-500 hover:bg-orange-600 text-white flex-1' 
+                  : 'border-border/50 hover:bg-muted flex-1'
+                }
+              >
+                Sobre saldo
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {interestType === 'flat' 
+                ? 'El interés se calcula siempre sobre el monto original del préstamo.'
+                : 'El interés se calcula sobre el saldo restante (disminuye cada mes).'
+              }
+            </p>
           </div>
 
           {/* Start Date */}
