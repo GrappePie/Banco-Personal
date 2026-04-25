@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { FileText, Printer, FileSpreadsheet, FileCode, X } from 'lucide-react'
 import type { Loan, LoanSummary, PaymentMonth } from '@/lib/loan-types'
-import { calculateLoanSummary, formatCurrency, formatDate, formatPercentage } from '@/lib/loan-calculations'
+import { calculateLoanSummary, formatDate, formatPercentage } from '@/lib/loan-calculations'
 import { useI18n } from '@/src/i18n/i18n-provider'
+import { useLocalizedCurrency } from '@/hooks/use-localized-currency'
 
 interface ReportsProps {
   loan: Loan
@@ -26,6 +27,7 @@ export function Reports({ loan, onClose }: ReportsProps) {
   const reportRef = useRef<HTMLDivElement>(null)
   const summary = calculateLoanSummary(loan)
   const { language, t } = useI18n()
+  const { formatCurrency } = useLocalizedCurrency()
   const generatedAt = new Date().toLocaleString(language)
 
   const handlePrint = () => {
@@ -145,19 +147,19 @@ export function Reports({ loan, onClose }: ReportsProps) {
     const rows = loan.payments.map(p => [
       p.monthNumber,
       p.estimatedDate,
-      p.principal.toFixed(2),
-      p.normalInterest.toFixed(2),
-      p.previousBalance.toFixed(2),
-      p.extraInterest.toFixed(2),
-      p.totalDue.toFixed(2),
-      p.amountPaid.toFixed(2),
-      p.balanceAfterPayment.toFixed(2),
+      formatCurrency(p.principal),
+      formatCurrency(p.normalInterest),
+      formatCurrency(p.previousBalance),
+      formatCurrency(p.extraInterest),
+      formatCurrency(p.totalDue),
+      formatCurrency(p.amountPaid),
+      formatCurrency(p.balanceAfterPayment),
       getStatusText(p.status, t),
     ])
 
     const csvContent = [
       `${t('reports.title')}: ${loan.name}`,
-      `${t('form.amount')}: ${loan.amount}`,
+      `${t('form.amount')}: ${formatCurrency(loan.amount)}`,
       `${t('form.term')}: ${loan.termMonths} ${t('dashboard.months')}`,
       `${t('form.monthlyInterestRate')}: ${loan.monthlyInterestRate}%`,
       `${t('reports.account')}: ${loan.sourceAccount}`,
