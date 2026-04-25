@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { FileText, Printer, FileSpreadsheet, FileCode, X } from 'lucide-react'
 import type { Loan, LoanSummary, PaymentMonth } from '@/lib/loan-types'
 import { calculateLoanSummary, formatCurrency, formatDate, formatPercentage } from '@/lib/loan-calculations'
 
@@ -107,21 +108,22 @@ export function Reports({ loan, onClose }: ReportsProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-auto">
-      <div className="min-h-screen p-4 md:p-8">
-        <Card className="max-w-5xl mx-auto bg-card border-border/50">
-          <CardHeader className="flex flex-row items-center justify-between print:hidden">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-auto print:relative print:bg-white print:backdrop-blur-none">
+      <div className="min-h-screen p-4 md:p-8 print:p-0 print:min-h-0">
+        <Card className="max-w-5xl mx-auto bg-card border-border/50 print:border-0 print:shadow-none print:max-w-none print-content">
+          <CardHeader className="flex flex-row items-center justify-between print-hidden">
             <CardTitle className="text-xl text-foreground flex items-center gap-2">
-              <span>📄</span>
+              <FileText className="h-5 w-5 text-orange-400" />
               Reporte del Préstamo
             </CardTitle>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={handlePrint}
                 className="border-border/50"
               >
+                <Printer className="h-3.5 w-3.5 mr-1.5" />
                 Imprimir / PDF
               </Button>
               <Button 
@@ -130,7 +132,8 @@ export function Reports({ loan, onClose }: ReportsProps) {
                 onClick={handleDownloadCSV}
                 className="border-border/50"
               >
-                Descargar CSV
+                <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />
+                CSV
               </Button>
               <Button 
                 variant="outline" 
@@ -138,7 +141,8 @@ export function Reports({ loan, onClose }: ReportsProps) {
                 onClick={handleDownloadHTML}
                 className="border-border/50"
               >
-                Descargar HTML
+                <FileCode className="h-3.5 w-3.5 mr-1.5" />
+                HTML
               </Button>
               <Button 
                 variant="outline" 
@@ -146,12 +150,13 @@ export function Reports({ loan, onClose }: ReportsProps) {
                 onClick={onClose}
                 className="border-border/50"
               >
+                <X className="h-3.5 w-3.5 mr-1.5" />
                 Cerrar
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
-            <div ref={reportRef} className="space-y-6">
+          <CardContent className="print:p-0">
+            <div ref={reportRef} className="space-y-6 print-content">
               {/* Header */}
               <div className="border-b border-border/50 pb-4">
                 <h1 className="text-2xl font-bold text-orange-400">{loan.name}</h1>
