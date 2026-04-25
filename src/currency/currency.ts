@@ -39,6 +39,8 @@ export const COUNTRY_TO_CURRENCY: Record<string, string> = {
   ZA: 'ZAR'
 }
 
+const MONEY_NUMBER_FORMAT_LOCALE = 'en-US'
+
 export function getCurrencyForCountry(countryCode?: string) {
   if (!countryCode) {
     return 'MXN'
@@ -47,14 +49,18 @@ export function getCurrencyForCountry(countryCode?: string) {
   return COUNTRY_TO_CURRENCY[countryCode.toUpperCase()] ?? 'USD'
 }
 
-export function formatMoney(amount: number, currency: string, locale = 'es-MX') {
+export function formatMoney(amount: number, currency: string) {
   try {
-    return new Intl.NumberFormat(locale, {
+    return new Intl.NumberFormat(MONEY_NUMBER_FORMAT_LOCALE, {
       style: 'currency',
       currency,
+      minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount)
   } catch {
-    return `${amount.toFixed(2)} ${currency}`
+    return `${currency} ${amount.toLocaleString(MONEY_NUMBER_FORMAT_LOCALE, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`
   }
 }
