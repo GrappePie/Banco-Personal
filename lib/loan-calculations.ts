@@ -121,8 +121,6 @@ export function recalculatePayments(loan: Loan): PaymentMonth[] {
   const termMonths = sanitizeTermMonths(loan.termMonths)
   const monthlyRate = sanitizeInterestRate(loan.monthlyInterestRate) / 100
 
-  console.log('[v0] recalculatePayments:', { amount, termMonths, monthlyRate, existingPaymentsCount: loan.payments?.length })
-
   const monthlyPrincipal = amount / termMonths
   const startDate = new Date(loan.startDate)
   
@@ -139,8 +137,6 @@ export function recalculatePayments(loan: Loan): PaymentMonth[] {
     const normalInterest = remainingPrincipal * monthlyRate
     const extraInterest = previousBalance * monthlyRate
     const totalDue = monthlyPrincipal + normalInterest + previousBalance + extraInterest
-
-    console.log(`[v0] Month ${i + 1}: remainingPrincipal=${remainingPrincipal.toFixed(2)}, interest=${normalInterest.toFixed(2)}, total=${totalDue.toFixed(2)}`)
 
     // Get existing payment data
     const existingPayment = loan.payments?.[i]
