@@ -7,6 +7,7 @@ import {
   createRoute,
   createRouter,
 } from '@tanstack/react-router'
+import { I18nProvider } from '@/src/i18n/i18n-provider'
 import { BancoPersonal } from './pages/banco-personal'
 import '../app/globals.css'
 
@@ -35,6 +36,8 @@ declare module '@tanstack/react-router' {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <I18nProvider>
+      <RouterProvider router={router} />
+    </I18nProvider>
   </StrictMode>,
 )
