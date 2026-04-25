@@ -22,7 +22,8 @@ export interface Loan {
   amount: number
   termMonths: number
   monthlyInterestRate: number
-  interestType: InterestType // 'flat' = fixed on original amount, 'declining' = on remaining balance
+  lateInterestRate?: number
+  interestType: InterestType
   startDate: string
   sourceAccount: string
   notes: string
