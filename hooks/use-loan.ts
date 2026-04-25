@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import type { Loan, PaymentMonth } from '@/lib/loan-types'
-import { loadLoans, saveLoans, createDefaultLoan } from '@/lib/loan-storage'
+import type { Loan } from '@/lib/loan-types'
+import { loadLoans, saveLoans } from '@/lib/loan-storage'
 import { recalculatePayments, generateId, sanitizeNumber } from '@/lib/loan-calculations'
 
 export function useLoan() {
@@ -10,25 +10,15 @@ export function useLoan() {
   const [activeLoanId, setActiveLoanId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Load loans on mount
   useEffect(() => {
     const storedLoans = loadLoans()
-    if (storedLoans.length === 0) {
-      const defaultLoan = createDefaultLoan()
-      setLoans([defaultLoan])
-      setActiveLoanId(defaultLoan.id)
-      saveLoans([defaultLoan])
-    } else {
-      setLoans(storedLoans)
-      setActiveLoanId(storedLoans[0].id)
-    }
+    setLoans(storedLoans)
+    setActiveLoanId(storedLoans[0]?.id ?? null)
     setIsLoading(false)
   }, [])
 
-  // Get active loan
   const activeLoan = loans.find(l => l.id === activeLoanId) || null
 
-  // Create new loan
   const createLoan = useCallback((loanData: Omit<Loan, 'id' | 'createdAt' | 'payments'>) => {
     const newLoan: Loan = {
       ...loanData,
@@ -46,7 +36,6 @@ export function useLoan() {
     return newLoan
   }, [loans])
 
-  // Update loan
   const updateLoan = useCallback((updatedLoan: Loan, recalculate = true) => {
     const finalLoan = recalculate 
       ? { ...updatedLoan, payments: recalculatePayments(updatedLoan) }
@@ -59,7 +48,6 @@ export function useLoan() {
     saveLoans(updatedLoans)
   }, [loans])
 
-  // Delete loan
   const deleteLoan = useCallback((loanId: string) => {
     const updatedLoans = loans.filter(l => l.id !== loanId)
     setLoans(updatedLoans)
@@ -70,7 +58,6 @@ export function useLoan() {
     }
   }, [loans, activeLoanId])
 
-  // Register payment
   const registerPayment = useCallback((monthIndex: number, amount: number) => {
     if (!activeLoan) return
 
@@ -99,13 +86,11 @@ export function useLoan() {
       payments: updatedPayments,
     }
 
-    // Recalculate all payments to handle carry-over
     updatedLoan.payments = recalculatePayments(updatedLoan)
 
-    updateLoan(updatedLoan, false) // Already recalculated
+    updateLoan(updatedLoan, false)
   }, [activeLoan, updateLoan])
 
-  // Pay full amount
   const payFull = useCallback((monthIndex: number) => {
     if (!activeLoan) return
     const payment = activeLoan.payments[monthIndex]
@@ -114,7 +99,6 @@ export function useLoan() {
     }
   }, [activeLoan, registerPayment])
 
-  // Reset all payments
   const resetPayments = useCallback(() => {
     if (!activeLoan) return
 
@@ -130,7 +114,7 @@ export function useLoan() {
     }
 
     resetLoan.payments = recalculatePayments(resetLoan)
-    updateLoan(resetLoan, false) // Already recalculated
+    updateLoan(resetLoan, false)
   }, [activeLoan, updateLoan])
 
   return {
