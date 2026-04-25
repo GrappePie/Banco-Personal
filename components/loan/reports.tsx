@@ -26,7 +26,185 @@ export function Reports({ loan, onClose }: ReportsProps) {
   const summary = calculateLoanSummary(loan)
 
   const handlePrint = () => {
-    window.print()
+    if (!reportRef.current) return
+
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+
+    const printContent = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte - ${loan.name}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      padding: 24px; 
+      background: white; 
+      color: #1a1a1a;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    h1 { color: #ea580c; font-size: 24px; margin-bottom: 8px; }
+    h2 { font-size: 16px; margin-bottom: 12px; color: #333; }
+    .header { border-bottom: 2px solid #ea580c; padding-bottom: 16px; margin-bottom: 20px; }
+    .header p { color: #666; font-size: 13px; margin-top: 4px; }
+    .header .notes { font-style: italic; margin-top: 8px; }
+    .summary { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 12px; 
+      margin-bottom: 24px; 
+    }
+    .summary-card { 
+      background: #f5f5f5; 
+      padding: 12px; 
+      border-radius: 6px; 
+      border: 1px solid #e5e5e5;
+    }
+    .summary-label { color: #666; font-size: 11px; text-transform: uppercase; }
+    .summary-value { font-size: 16px; font-weight: bold; margin-top: 4px; }
+    .text-orange { color: #ea580c; }
+    .text-emerald { color: #059669; }
+    .text-amber { color: #d97706; }
+    .text-cyan { color: #0891b2; }
+    .text-rose { color: #e11d48; }
+    .text-blue { color: #2563eb; }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 16px;
+      font-size: 11px;
+    }
+    th, td { 
+      padding: 8px 6px; 
+      text-align: left; 
+      border-bottom: 1px solid #e5e5e5; 
+    }
+    th { 
+      background: #f5f5f5; 
+      color: #666; 
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 500;
+    }
+    .badge-pagado { background: #d1fae5; color: #059669; }
+    .badge-parcial { background: #fef3c7; color: #d97706; }
+    .badge-pendiente { background: #dbeafe; color: #2563eb; }
+    .footer { 
+      margin-top: 24px; 
+      padding-top: 16px;
+      border-top: 1px solid #e5e5e5;
+      color: #666; 
+      font-size: 11px; 
+      text-align: center;
+    }
+    @media print {
+      body { padding: 0; }
+      @page { margin: 1.5cm; size: landscape; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>${loan.name}</h1>
+    <p>Cuenta: ${loan.sourceAccount} &bull; Inicio: ${formatDate(loan.startDate)} &bull; ${loan.termMonths} meses a ${formatPercentage(loan.monthlyInterestRate)} mensual &bull; Interés ${loan.interestType === 'declining' ? 'sobre saldo' : 'fijo'}</p>
+    ${loan.notes ? `<p class="notes">${loan.notes}</p>` : ''}
+  </div>
+
+  <div class="summary">
+    <div class="summary-card">
+      <div class="summary-label">Total Prestado</div>
+      <div class="summary-value text-orange">${formatCurrency(summary.totalBorrowed)}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Total Proyectado</div>
+      <div class="summary-value">${formatCurrency(summary.totalProjected)}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Total Pagado</div>
+      <div class="summary-value text-emerald">${formatCurrency(summary.totalPaid)}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Saldo Pendiente</div>
+      <div class="summary-value text-rose">${formatCurrency(summary.pendingBalance)}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Interés Normal</div>
+      <div class="summary-value text-cyan">${formatCurrency(summary.normalInterestTotal)}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Interés Extra</div>
+      <div class="summary-value text-amber">${formatCurrency(summary.extraInterestTotal)}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Pago Base Mensual</div>
+      <div class="summary-value text-blue">${formatCurrency(summary.monthlyBasePayment)}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Estado</div>
+      <div class="summary-value">${getStatusText(summary.status)}</div>
+    </div>
+  </div>
+
+  <h2>Detalle de Pagos</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Mes</th>
+        <th>Fecha</th>
+        <th class="text-right">Capital</th>
+        <th class="text-right">Interés</th>
+        <th class="text-right">Sobrante</th>
+        <th class="text-right">Int. Extra</th>
+        <th class="text-right">Total</th>
+        <th class="text-right">Pagado</th>
+        <th class="text-center">Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${loan.payments.map(p => `
+        <tr>
+          <td>#${p.monthNumber}</td>
+          <td>${formatDate(p.estimatedDate)}</td>
+          <td class="text-right">${formatCurrency(p.principal)}</td>
+          <td class="text-right text-cyan">${formatCurrency(p.normalInterest)}</td>
+          <td class="text-right text-amber">${formatCurrency(p.previousBalance)}</td>
+          <td class="text-right text-amber">${formatCurrency(p.extraInterest)}</td>
+          <td class="text-right text-orange"><strong>${formatCurrency(p.totalDue)}</strong></td>
+          <td class="text-right text-emerald">${formatCurrency(p.amountPaid)}</td>
+          <td class="text-center">
+            <span class="badge badge-${p.status}">${getStatusText(p.status)}</span>
+          </td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    Reporte generado el ${new Date().toLocaleString('es-MX')} &bull; Banco Personal
+  </div>
+</body>
+</html>
+    `
+
+    printWindow.document.write(printContent)
+    printWindow.document.close()
+    printWindow.onload = () => {
+      printWindow.print()
+    }
   }
 
   const handleDownloadCSV = () => {
