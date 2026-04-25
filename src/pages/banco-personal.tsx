@@ -7,7 +7,9 @@ import { PaymentTable } from '@/components/loan/payment-table'
 import { Reports } from '@/components/loan/reports'
 import { LoanSelector } from '@/components/loan/loan-selector'
 import { useLoan } from '@/hooks/use-loan'
+import { useCurrencyConversion } from '@/hooks/use-currency-conversion'
 import { useI18n } from '@/src/i18n/i18n-provider'
+import { formatMoney } from '@/src/currency/currency'
 import { Spinner } from '@/components/ui/spinner'
 
 type View = 'dashboard' | 'create' | 'edit'
@@ -31,10 +33,13 @@ export function BancoPersonal() {
     setLanguage,
     supportedLanguages,
     t,
+    countryCode,
     countryName,
     primaryLanguage,
     isLocaleLoading,
   } = useI18n()
+  const currencyConversion = useCurrencyConversion(countryCode)
+  const convertedLoanAmount = activeLoan ? currencyConversion.convertFromMxn(activeLoan.amount) : null
 
   const [view, setView] = useState<View>('dashboard')
   const [showReport, setShowReport] = useState(false)
@@ -62,6 +67,20 @@ export function BancoPersonal() {
               <div>
                 <h1 className="text-xl font-bold text-foreground">{t('app.title')}</h1>
                 <p className="text-xs text-muted-foreground">{t('app.subtitle')}</p>
+                {activeLoan && currencyConversion.targetCurrency !== currencyConversion.baseCurrency && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {currencyConversion.isLoading && t('currency.loading')}
+                    {!currencyConversion.isLoading && convertedLoanAmount !== null && (
+                      <>
+                        {t('currency.estimatedLocal')}: {' '}
+                        <span className="text-orange-400 font-medium">
+                          {formatMoney(convertedLoanAmount, currencyConversion.targetCurrency, language)}
+                        </span>
+                      </>
+                    )}
+                    {!currencyConversion.isLoading && convertedLoanAmount === null && t('currency.unavailable')}
+                  </p>
+                )}
               </div>
             </div>
 
