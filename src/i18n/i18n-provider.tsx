@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import es from '@/src/locales/es.json'
 import en from '@/src/locales/en.json'
 import ro from '@/src/locales/ro.json'
@@ -74,7 +75,7 @@ function interpolate(value: string, params?: Record<string, string | number>) {
   )
 }
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
+export function I18nProvider({ children }: { children: ReactNode }) {
   const { localeInfo, primaryLanguage, isLoading: isLocaleLoading } = useIpLocale()
   const [language, setLanguageState] = useState<LanguageCode>(() => {
     return getStoredLanguage() ?? getBrowserLanguage() ?? DEFAULT_LANGUAGE
