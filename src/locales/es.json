@@ -1,0 +1,114 @@
+{
+  "app": {
+    "title": "Banco Personal",
+    "subtitle": "Administra tus préstamos personales",
+    "loading": "Cargando Banco Personal..."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "newLoan": "Nuevo Préstamo",
+    "viewReport": "Ver Reporte",
+    "detectingLocation": "Detectando ubicación...",
+    "localeTooltip": "Detección aproximada por IP pública. No se guarda tu IP.",
+    "language": "Idioma"
+  },
+  "language": {
+    "es": "Español",
+    "en": "Inglés",
+    "ro": "Rumano",
+    "ru": "Ruso"
+  },
+  "empty": {
+    "welcome": "Bienvenido a Banco Personal",
+    "description": "Comienza creando tu primer préstamo personal",
+    "createFirstLoan": "Crear Primer Préstamo",
+    "noLoans": "No tienes préstamos registrados",
+    "new": "Nuevo"
+  },
+  "status": {
+    "paid": "Pagado",
+    "partial": "Parcial",
+    "pending": "Pendiente"
+  },
+  "dashboard": {
+    "edit": "Editar",
+    "months": "meses",
+    "monthly": "mensual",
+    "stats": {
+      "totalBorrowed": "Total Prestado",
+      "monthlyBasePayment": "Pago Base Mensual",
+      "totalProjected": "Total Proyectado",
+      "totalPaid": "Total Pagado",
+      "normalInterest": "Interés Normal",
+      "extraInterest": "Interés Extra",
+      "pendingBalance": "Saldo Pendiente"
+    },
+    "progress": "Progreso del Préstamo",
+    "paid": "Pagado",
+    "total": "Total"
+  },
+  "form": {
+    "editTitle": "Editar Préstamo",
+    "newTitle": "Nuevo Préstamo",
+    "loanName": "Nombre del Préstamo",
+    "loanNamePlaceholder": "Ej: RTX 5070 TUF",
+    "amount": "Monto del Préstamo (MXN)",
+    "term": "Plazo en Meses",
+    "other": "Otro",
+    "customTermPlaceholder": "Número de meses",
+    "monthlyInterestRate": "Tasa de Interés Mensual (%)",
+    "interestType": "Tipo de Interés",
+    "flat": "Fijo",
+    "declining": "Sobre saldo",
+    "flatDescription": "El interés se calcula siempre sobre el monto original del préstamo.",
+    "decliningDescription": "El interés se calcula sobre el saldo restante (disminuye cada mes).",
+    "startDate": "Fecha de Inicio",
+    "sourceAccount": "Cuenta Origen",
+    "sourceAccountPlaceholder": "Ej: Revolut, BBVA, etc.",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas adicionales...",
+    "saveChanges": "Guardar Cambios",
+    "createLoan": "Crear Préstamo",
+    "cancel": "Cancelar",
+    "defaultLoanName": "Préstamo sin nombre",
+    "defaultSourceAccount": "No especificada"
+  },
+  "selector": {
+    "editLoan": "Editar préstamo",
+    "deleteLoan": "Eliminar préstamo",
+    "confirmDelete": "¿Eliminar el préstamo \"{{name}}\"?"
+  },
+  "payments": {
+    "title": "Calendario de Pagos",
+    "reset": "Reiniciar Pagos",
+    "month": "Mes",
+    "estimatedDate": "Fecha Est.",
+    "date": "Fecha",
+    "principal": "Capital",
+    "interest": "Interés",
+    "previousBalance": "Sobrante Ant.",
+    "extraInterest": "Int. Extra",
+    "total": "Total",
+    "paid": "Pagado",
+    "balance": "Sobrante",
+    "status": "Estado",
+    "actions": "Acciones",
+    "amount": "Monto",
+    "amountToPay": "Monto a pagar",
+    "pay": "Pagar",
+    "complete": "Completo",
+    "registerPayment": "Registrar Pago",
+    "payFull": "Pagar Completo"
+  },
+  "reports": {
+    "title": "Reporte del Préstamo",
+    "print": "Imprimir / PDF",
+    "csv": "CSV",
+    "html": "HTML",
+    "close": "Cerrar",
+    "account": "Cuenta",
+    "start": "Inicio",
+    "detail": "Detalle de Pagos",
+    "generated": "Reporte generado el {{date}} • Banco Personal"
+  }
+}
