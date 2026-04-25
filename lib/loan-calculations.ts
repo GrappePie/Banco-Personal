@@ -63,12 +63,14 @@ export function generatePaymentSchedule(loan: Loan): PaymentMonth[] {
   
   const payments: PaymentMonth[] = []
   let carryOverBalance = 0
+  let remainingPrincipal = amount // Track remaining principal for interest calculation
 
   for (let i = 0; i < termMonths; i++) {
     const paymentDate = new Date(startDate)
     paymentDate.setMonth(paymentDate.getMonth() + i + 1)
 
-    const normalInterest = monthlyPrincipal * monthlyRate
+    // Interest is calculated on remaining principal, not on the monthly payment
+    const normalInterest = remainingPrincipal * monthlyRate
     const extraInterest = carryOverBalance * monthlyRate
     const totalDue = monthlyPrincipal + normalInterest + carryOverBalance + extraInterest
 
@@ -91,6 +93,9 @@ export function generatePaymentSchedule(loan: Loan): PaymentMonth[] {
       carryOverBalance = 0
     }
     // For pending months, don't accumulate balance
+
+    // Reduce remaining principal for next month's interest calculation
+    remainingPrincipal -= monthlyPrincipal
 
     payments.push({
       monthNumber: i + 1,
@@ -121,13 +126,15 @@ export function recalculatePayments(loan: Loan): PaymentMonth[] {
   
   const payments: PaymentMonth[] = []
   let carryOverBalance = 0
+  let remainingPrincipal = amount // Track remaining principal for interest calculation
 
   for (let i = 0; i < termMonths; i++) {
     const paymentDate = new Date(startDate)
     paymentDate.setMonth(paymentDate.getMonth() + i + 1)
 
     const previousBalance = carryOverBalance
-    const normalInterest = monthlyPrincipal * monthlyRate
+    // Interest is calculated on remaining principal, not on the monthly payment
+    const normalInterest = remainingPrincipal * monthlyRate
     const extraInterest = previousBalance * monthlyRate
     const totalDue = monthlyPrincipal + normalInterest + previousBalance + extraInterest
 
@@ -157,6 +164,9 @@ export function recalculatePayments(loan: Loan): PaymentMonth[] {
       carryOverBalance = 0
     }
 
+    // Reduce remaining principal for next month's interest calculation
+    remainingPrincipal -= monthlyPrincipal
+
     payments.push({
       monthNumber: i + 1,
       estimatedDate: paymentDate.toISOString().split('T')[0],
@@ -182,7 +192,9 @@ export function calculateLoanSummary(loan: Loan): LoanSummary {
   const monthlyRate = sanitizeInterestRate(loan.monthlyInterestRate) / 100
 
   const monthlyPrincipal = amount / termMonths
-  const baseMonthlyPayment = monthlyPrincipal + (monthlyPrincipal * monthlyRate)
+  // First month has highest interest (on full principal)
+  const firstMonthInterest = amount * monthlyRate
+  const baseMonthlyPayment = monthlyPrincipal + firstMonthInterest
 
   const payments = recalculatePayments(loan)
 
