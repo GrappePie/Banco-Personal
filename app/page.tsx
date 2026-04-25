@@ -123,7 +123,8 @@ export default function BancoPersonal() {
           <LoanForm
             initialData={activeLoan}
             onSubmit={(loanData) => {
-              updateLoan({ ...activeLoan, ...loanData })
+              // Clear payments when editing loan terms so they get recalculated fresh
+              updateLoan({ ...activeLoan, ...loanData, payments: [] })
               setView('dashboard')
             }}
             onCancel={() => setView('dashboard')}

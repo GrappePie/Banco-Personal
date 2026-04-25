@@ -48,24 +48,9 @@ export function useLoan() {
 
   // Update loan
   const updateLoan = useCallback((updatedLoan: Loan, recalculate = true) => {
-    console.log('[v0] updateLoan called:', { 
-      recalculate, 
-      amount: updatedLoan.amount, 
-      termMonths: updatedLoan.termMonths,
-      rate: updatedLoan.monthlyInterestRate,
-      existingPayments: updatedLoan.payments?.length 
-    })
-    
     const finalLoan = recalculate 
       ? { ...updatedLoan, payments: recalculatePayments(updatedLoan) }
       : updatedLoan
-    
-    console.log('[v0] finalLoan payments:', finalLoan.payments?.map(p => ({
-      month: p.monthNumber,
-      principal: p.principal,
-      interest: p.normalInterest,
-      total: p.totalDue
-    })))
     
     const updatedLoans = loans.map(l => 
       l.id === finalLoan.id ? finalLoan : l
