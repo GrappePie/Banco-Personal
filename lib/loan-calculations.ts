@@ -1,26 +1,26 @@
 import type { Loan, PaymentMonth, LoanSummary, LoanStatus } from './loan-types'
 
-// Sanitize numeric inputs
 export function sanitizeNumber(value: number | string | undefined | null, min = 0): number {
   const num = typeof value === 'string' ? parseFloat(value) : value
   if (num === undefined || num === null || isNaN(num)) return min
   return Math.max(num, min)
 }
 
-// Sanitize term months
 export function sanitizeTermMonths(value: number | string | undefined | null): number {
   const num = sanitizeNumber(value, 1)
   return Math.max(Math.floor(num), 1)
 }
 
-// Sanitize interest rate (can be 0)
 export function sanitizeInterestRate(value: number | string | undefined | null): number {
   const num = typeof value === 'string' ? parseFloat(value) : value
   if (num === undefined || num === null || isNaN(num)) return 0
   return Math.max(num, 0)
 }
 
-// Format currency in MXN
+export function getLateInterestRate(loan: Pick<Loan, 'monthlyInterestRate' | 'lateInterestRate'>): number {
+  return sanitizeInterestRate(loan.lateInterestRate ?? loan.monthlyInterestRate)
+}
+
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
@@ -30,12 +30,10 @@ export function formatCurrency(amount: number): string {
   }).format(amount)
 }
 
-// Format percentage
 export function formatPercentage(rate: number): string {
   return `${rate.toFixed(2)}%`
 }
 
-// Format date
 export function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString('es-MX', {
@@ -45,61 +43,52 @@ export function formatDate(dateString: string): string {
   })
 }
 
-// Calculate monthly base payment (principal only, without interest)
 export function calculateMonthlyPrincipal(amount: number, termMonths: number): number {
   const sanitizedAmount = sanitizeNumber(amount)
   const sanitizedTerm = sanitizeTermMonths(termMonths)
   return sanitizedAmount / sanitizedTerm
 }
 
-// Generate payment schedule
 export function generatePaymentSchedule(loan: Loan): PaymentMonth[] {
   const amount = sanitizeNumber(loan.amount)
   const termMonths = sanitizeTermMonths(loan.termMonths)
   const monthlyRate = sanitizeInterestRate(loan.monthlyInterestRate) / 100
-  const interestType = loan.interestType || 'flat' // Default to flat for backwards compatibility
+  const lateRate = getLateInterestRate(loan) / 100
+  const interestType = loan.interestType || 'flat'
 
   const monthlyPrincipal = amount / termMonths
   const startDate = new Date(loan.startDate)
   
   const payments: PaymentMonth[] = []
   let carryOverBalance = 0
-  let remainingPrincipal = amount // Track remaining principal for declining interest
+  let remainingPrincipal = amount
 
   for (let i = 0; i < termMonths; i++) {
     const paymentDate = new Date(startDate)
     paymentDate.setMonth(paymentDate.getMonth() + i + 1)
 
-    // Interest calculation depends on type:
-    // - 'flat': always on original amount
-    // - 'declining': on remaining principal
     const normalInterest = interestType === 'flat' 
       ? amount * monthlyRate 
       : remainingPrincipal * monthlyRate
-    const extraInterest = carryOverBalance * monthlyRate
+    const extraInterest = carryOverBalance * lateRate
     const totalDue = monthlyPrincipal + normalInterest + carryOverBalance + extraInterest
 
-    // Check if we have existing payment data
     const existingPayment = loan.payments?.[i]
     const amountPaid = existingPayment?.amountPaid ?? 0
     const status = existingPayment?.status ?? 'pendiente'
     const paidAt = existingPayment?.paidAt
 
-    // Only calculate balance if payment was made (status is not pendiente for future months)
     let balanceAfterPayment = 0
     if (status !== 'pendiente' || amountPaid > 0) {
       balanceAfterPayment = Math.max(0, totalDue - amountPaid)
     }
 
-    // Carry over balance only if there's an actual partial payment registered
     if (status === 'parcial' && balanceAfterPayment > 0) {
       carryOverBalance = balanceAfterPayment
     } else if (status === 'pagado') {
       carryOverBalance = 0
     }
-    // For pending months, don't accumulate balance
 
-    // Reduce remaining principal for next month's interest calculation
     remainingPrincipal -= monthlyPrincipal
 
     payments.push({
@@ -120,40 +109,35 @@ export function generatePaymentSchedule(loan: Loan): PaymentMonth[] {
   return payments
 }
 
-// Recalculate payments with carry-over logic
 export function recalculatePayments(loan: Loan): PaymentMonth[] {
   const amount = sanitizeNumber(loan.amount)
   const termMonths = sanitizeTermMonths(loan.termMonths)
   const monthlyRate = sanitizeInterestRate(loan.monthlyInterestRate) / 100
-  const interestType = loan.interestType || 'flat' // Default to flat for backwards compatibility
+  const lateRate = getLateInterestRate(loan) / 100
+  const interestType = loan.interestType || 'flat'
 
   const monthlyPrincipal = amount / termMonths
   const startDate = new Date(loan.startDate)
   
   const payments: PaymentMonth[] = []
   let carryOverBalance = 0
-  let remainingPrincipal = amount // Track remaining principal for declining interest
+  let remainingPrincipal = amount
 
   for (let i = 0; i < termMonths; i++) {
     const paymentDate = new Date(startDate)
     paymentDate.setMonth(paymentDate.getMonth() + i + 1)
 
     const previousBalance = carryOverBalance
-    // Interest calculation depends on type:
-    // - 'flat': always on original amount
-    // - 'declining': on remaining principal
     const normalInterest = interestType === 'flat' 
       ? amount * monthlyRate 
       : remainingPrincipal * monthlyRate
-    const extraInterest = previousBalance * monthlyRate
+    const extraInterest = previousBalance * lateRate
     const totalDue = monthlyPrincipal + normalInterest + previousBalance + extraInterest
 
-    // Get existing payment data
     const existingPayment = loan.payments?.[i]
     const amountPaid = existingPayment?.amountPaid ?? 0
     const paidAt = existingPayment?.paidAt
 
-    // Determine status and balance
     let status: PaymentMonth['status'] = 'pendiente'
     let balanceAfterPayment = 0
 
@@ -168,13 +152,11 @@ export function recalculatePayments(loan: Loan): PaymentMonth[] {
         carryOverBalance = balanceAfterPayment
       }
     } else {
-      // No payment made - don't carry over to next months
       status = 'pendiente'
       balanceAfterPayment = 0
       carryOverBalance = 0
     }
 
-    // Reduce remaining principal for next month's interest calculation
     remainingPrincipal -= monthlyPrincipal
 
     payments.push({
@@ -195,16 +177,12 @@ export function recalculatePayments(loan: Loan): PaymentMonth[] {
   return payments
 }
 
-// Calculate loan summary
 export function calculateLoanSummary(loan: Loan): LoanSummary {
   const amount = sanitizeNumber(loan.amount)
   const termMonths = sanitizeTermMonths(loan.termMonths)
   const monthlyRate = sanitizeInterestRate(loan.monthlyInterestRate) / 100
-  const interestType = loan.interestType || 'flat'
 
   const monthlyPrincipal = amount / termMonths
-  // For flat rate, interest is always on original amount
-  // For declining, first month has highest interest (on full principal)
   const firstMonthInterest = amount * monthlyRate
   const baseMonthlyPayment = monthlyPrincipal + firstMonthInterest
 
@@ -226,7 +204,6 @@ export function calculateLoanSummary(loan: Loan): LoanSummary {
 
   const totalProjected = amount + normalInterestTotal + extraInterestTotal
 
-  // Determine overall loan status
   let status: LoanStatus = 'pendiente'
   const allPaid = payments.every(p => p.status === 'pagado')
   const somePaid = payments.some(p => p.status === 'pagado' || p.status === 'parcial')
@@ -249,12 +226,10 @@ export function calculateLoanSummary(loan: Loan): LoanSummary {
   }
 }
 
-// Generate unique ID
 export function generateId(): string {
   return `loan_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
-// Get today's date in YYYY-MM-DD format
 export function getTodayDate(): string {
   return new Date().toISOString().split('T')[0]
 }
