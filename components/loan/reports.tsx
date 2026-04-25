@@ -7,64 +7,48 @@ import { Badge } from '@/components/ui/badge'
 import { FileText, Printer, FileSpreadsheet, FileCode, X } from 'lucide-react'
 import type { Loan, LoanSummary, PaymentMonth } from '@/lib/loan-types'
 import { calculateLoanSummary, formatCurrency, formatDate, formatPercentage } from '@/lib/loan-calculations'
+import { useI18n } from '@/src/i18n/i18n-provider'
 
 interface ReportsProps {
   loan: Loan
   onClose: () => void
 }
 
-function getStatusText(status: PaymentMonth['status'] | LoanSummary['status']) {
+function getStatusText(status: PaymentMonth['status'] | LoanSummary['status'], t: (key: string) => string) {
   switch (status) {
-    case 'pagado': return 'Pagado'
-    case 'parcial': return 'Parcial'
-    case 'pendiente': return 'Pendiente'
+    case 'pagado': return t('status.paid')
+    case 'parcial': return t('status.partial')
+    case 'pendiente': return t('status.pending')
   }
 }
 
 export function Reports({ loan, onClose }: ReportsProps) {
   const reportRef = useRef<HTMLDivElement>(null)
   const summary = calculateLoanSummary(loan)
+  const { language, t } = useI18n()
+  const generatedAt = new Date().toLocaleString(language)
 
   const handlePrint = () => {
-    if (!reportRef.current) return
-
     const printWindow = window.open('', '_blank')
     if (!printWindow) return
 
     const printContent = `
 <!DOCTYPE html>
-<html lang="es">
+<html lang="${language}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reporte - ${loan.name}</title>
+  <title>${t('reports.title')} - ${loan.name}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { 
-      font-family: system-ui, -apple-system, sans-serif; 
-      padding: 24px; 
-      background: white; 
-      color: #1a1a1a;
-      font-size: 12px;
-      line-height: 1.4;
-    }
+    body { font-family: system-ui, -apple-system, sans-serif; padding: 24px; background: white; color: #1a1a1a; font-size: 12px; line-height: 1.4; }
     h1 { color: #ea580c; font-size: 24px; margin-bottom: 8px; }
     h2 { font-size: 16px; margin-bottom: 12px; color: #333; }
     .header { border-bottom: 2px solid #ea580c; padding-bottom: 16px; margin-bottom: 20px; }
     .header p { color: #666; font-size: 13px; margin-top: 4px; }
     .header .notes { font-style: italic; margin-top: 8px; }
-    .summary { 
-      display: grid; 
-      grid-template-columns: repeat(4, 1fr); 
-      gap: 12px; 
-      margin-bottom: 24px; 
-    }
-    .summary-card { 
-      background: #f5f5f5; 
-      padding: 12px; 
-      border-radius: 6px; 
-      border: 1px solid #e5e5e5;
-    }
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .summary-card { background: #f5f5f5; padding: 12px; border-radius: 6px; border: 1px solid #e5e5e5; }
     .summary-label { color: #666; font-size: 11px; text-transform: uppercase; }
     .summary-value { font-size: 16px; font-weight: bold; margin-top: 4px; }
     .text-orange { color: #ea580c; }
@@ -73,105 +57,50 @@ export function Reports({ loan, onClose }: ReportsProps) {
     .text-cyan { color: #0891b2; }
     .text-rose { color: #e11d48; }
     .text-blue { color: #2563eb; }
-    table { 
-      width: 100%; 
-      border-collapse: collapse; 
-      margin-top: 16px;
-      font-size: 11px;
-    }
-    th, td { 
-      padding: 8px 6px; 
-      text-align: left; 
-      border-bottom: 1px solid #e5e5e5; 
-    }
-    th { 
-      background: #f5f5f5; 
-      color: #666; 
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 10px;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 11px; }
+    th, td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #e5e5e5; }
+    th { background: #f5f5f5; color: #666; font-weight: 600; text-transform: uppercase; font-size: 10px; }
     .text-right { text-align: right; }
     .text-center { text-align: center; }
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 500;
-    }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 500; }
     .badge-pagado { background: #d1fae5; color: #059669; }
     .badge-parcial { background: #fef3c7; color: #d97706; }
     .badge-pendiente { background: #dbeafe; color: #2563eb; }
-    .footer { 
-      margin-top: 24px; 
-      padding-top: 16px;
-      border-top: 1px solid #e5e5e5;
-      color: #666; 
-      font-size: 11px; 
-      text-align: center;
-    }
-    @media print {
-      body { padding: 0; }
-      @page { margin: 1.5cm; size: landscape; }
-    }
+    .footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e5e5; color: #666; font-size: 11px; text-align: center; }
+    @media print { body { padding: 0; } @page { margin: 1.5cm; size: landscape; } }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>${loan.name}</h1>
-    <p>Cuenta: ${loan.sourceAccount} &bull; Inicio: ${formatDate(loan.startDate)} &bull; ${loan.termMonths} meses a ${formatPercentage(loan.monthlyInterestRate)} mensual &bull; Interés ${loan.interestType === 'declining' ? 'sobre saldo' : 'fijo'}</p>
+    <p>${t('reports.account')}: ${loan.sourceAccount} &bull; ${t('reports.start')}: ${formatDate(loan.startDate)} &bull; ${loan.termMonths} ${t('dashboard.months')} ${formatPercentage(loan.monthlyInterestRate)} ${t('dashboard.monthly')} &bull; ${t('form.interestType')}: ${loan.interestType === 'declining' ? t('form.declining') : t('form.flat')}</p>
     ${loan.notes ? `<p class="notes">${loan.notes}</p>` : ''}
   </div>
 
   <div class="summary">
-    <div class="summary-card">
-      <div class="summary-label">Total Prestado</div>
-      <div class="summary-value text-orange">${formatCurrency(summary.totalBorrowed)}</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Total Proyectado</div>
-      <div class="summary-value">${formatCurrency(summary.totalProjected)}</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Total Pagado</div>
-      <div class="summary-value text-emerald">${formatCurrency(summary.totalPaid)}</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Saldo Pendiente</div>
-      <div class="summary-value text-rose">${formatCurrency(summary.pendingBalance)}</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Interés Normal</div>
-      <div class="summary-value text-cyan">${formatCurrency(summary.normalInterestTotal)}</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Interés Extra</div>
-      <div class="summary-value text-amber">${formatCurrency(summary.extraInterestTotal)}</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Pago Base Mensual</div>
-      <div class="summary-value text-blue">${formatCurrency(summary.monthlyBasePayment)}</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Estado</div>
-      <div class="summary-value">${getStatusText(summary.status)}</div>
-    </div>
+    <div class="summary-card"><div class="summary-label">${t('dashboard.stats.totalBorrowed')}</div><div class="summary-value text-orange">${formatCurrency(summary.totalBorrowed)}</div></div>
+    <div class="summary-card"><div class="summary-label">${t('dashboard.stats.totalProjected')}</div><div class="summary-value">${formatCurrency(summary.totalProjected)}</div></div>
+    <div class="summary-card"><div class="summary-label">${t('dashboard.stats.totalPaid')}</div><div class="summary-value text-emerald">${formatCurrency(summary.totalPaid)}</div></div>
+    <div class="summary-card"><div class="summary-label">${t('dashboard.stats.pendingBalance')}</div><div class="summary-value text-rose">${formatCurrency(summary.pendingBalance)}</div></div>
+    <div class="summary-card"><div class="summary-label">${t('dashboard.stats.normalInterest')}</div><div class="summary-value text-cyan">${formatCurrency(summary.normalInterestTotal)}</div></div>
+    <div class="summary-card"><div class="summary-label">${t('dashboard.stats.extraInterest')}</div><div class="summary-value text-amber">${formatCurrency(summary.extraInterestTotal)}</div></div>
+    <div class="summary-card"><div class="summary-label">${t('dashboard.stats.monthlyBasePayment')}</div><div class="summary-value text-blue">${formatCurrency(summary.monthlyBasePayment)}</div></div>
+    <div class="summary-card"><div class="summary-label">${t('payments.status')}</div><div class="summary-value">${getStatusText(summary.status, t)}</div></div>
   </div>
 
-  <h2>Detalle de Pagos</h2>
+  <h2>${t('reports.detail')}</h2>
   <table>
     <thead>
       <tr>
-        <th>Mes</th>
-        <th>Fecha</th>
-        <th class="text-right">Capital</th>
-        <th class="text-right">Interés</th>
-        <th class="text-right">Sobrante</th>
-        <th class="text-right">Int. Extra</th>
-        <th class="text-right">Total</th>
-        <th class="text-right">Pagado</th>
-        <th class="text-center">Estado</th>
+        <th>${t('payments.month')}</th>
+        <th>${t('payments.date')}</th>
+        <th class="text-right">${t('payments.principal')}</th>
+        <th class="text-right">${t('payments.interest')}</th>
+        <th class="text-right">${t('payments.balance')}</th>
+        <th class="text-right">${t('payments.extraInterest')}</th>
+        <th class="text-right">${t('payments.total')}</th>
+        <th class="text-right">${t('payments.paid')}</th>
+        <th class="text-center">${t('payments.status')}</th>
       </tr>
     </thead>
     <tbody>
@@ -185,30 +114,34 @@ export function Reports({ loan, onClose }: ReportsProps) {
           <td class="text-right text-amber">${formatCurrency(p.extraInterest)}</td>
           <td class="text-right text-orange"><strong>${formatCurrency(p.totalDue)}</strong></td>
           <td class="text-right text-emerald">${formatCurrency(p.amountPaid)}</td>
-          <td class="text-center">
-            <span class="badge badge-${p.status}">${getStatusText(p.status)}</span>
-          </td>
+          <td class="text-center"><span class="badge badge-${p.status}">${getStatusText(p.status, t)}</span></td>
         </tr>
       `).join('')}
     </tbody>
   </table>
 
-  <div class="footer">
-    Reporte generado el ${new Date().toLocaleString('es-MX')} &bull; Banco Personal
-  </div>
+  <div class="footer">${t('reports.generated', { date: generatedAt })}</div>
 </body>
-</html>
-    `
+</html>`
 
     printWindow.document.write(printContent)
     printWindow.document.close()
-    printWindow.onload = () => {
-      printWindow.print()
-    }
+    printWindow.onload = () => printWindow.print()
   }
 
   const handleDownloadCSV = () => {
-    const headers = ['Mes', 'Fecha', 'Capital', 'Interés Normal', 'Sobrante Anterior', 'Interés Extra', 'Total a Pagar', 'Monto Pagado', 'Sobrante', 'Estado']
+    const headers = [
+      t('payments.month'),
+      t('payments.date'),
+      t('payments.principal'),
+      t('dashboard.stats.normalInterest'),
+      t('payments.previousBalance'),
+      t('payments.extraInterest'),
+      t('payments.total'),
+      t('payments.paid'),
+      t('payments.balance'),
+      t('payments.status'),
+    ]
     const rows = loan.payments.map(p => [
       p.monthNumber,
       p.estimatedDate,
@@ -219,25 +152,25 @@ export function Reports({ loan, onClose }: ReportsProps) {
       p.totalDue.toFixed(2),
       p.amountPaid.toFixed(2),
       p.balanceAfterPayment.toFixed(2),
-      getStatusText(p.status)
+      getStatusText(p.status, t),
     ])
 
     const csvContent = [
-      `Préstamo: ${loan.name}`,
-      `Monto: ${loan.amount}`,
-      `Plazo: ${loan.termMonths} meses`,
-      `Tasa: ${loan.monthlyInterestRate}%`,
-      `Cuenta: ${loan.sourceAccount}`,
-      `Generado: ${new Date().toLocaleString('es-MX')}`,
+      `${t('reports.title')}: ${loan.name}`,
+      `${t('form.amount')}: ${loan.amount}`,
+      `${t('form.term')}: ${loan.termMonths} ${t('dashboard.months')}`,
+      `${t('form.monthlyInterestRate')}: ${loan.monthlyInterestRate}%`,
+      `${t('reports.account')}: ${loan.sourceAccount}`,
+      t('reports.generated', { date: generatedAt }),
       '',
       headers.join(','),
-      ...rows.map(r => r.join(','))
+      ...rows.map(r => r.join(',')),
     ].join('\n')
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = `reporte-${loan.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`
+    link.download = `report-${loan.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`
     link.click()
     URL.revokeObjectURL(link.href)
   }
@@ -247,11 +180,11 @@ export function Reports({ loan, onClose }: ReportsProps) {
 
     const htmlContent = `
 <!DOCTYPE html>
-<html lang="es">
+<html lang="${language}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reporte - ${loan.name}</title>
+  <title>${t('reports.title')} - ${loan.name}</title>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; background: #0f0f0f; color: #fff; }
     h1 { color: #f97316; }
@@ -272,15 +205,14 @@ export function Reports({ loan, onClose }: ReportsProps) {
 </head>
 <body>
   ${reportRef.current.innerHTML}
-  <div class="footer">Generado el ${new Date().toLocaleString('es-MX')} - Banco Personal</div>
+  <div class="footer">${t('reports.generated', { date: generatedAt })}</div>
 </body>
-</html>
-    `
+</html>`
 
     const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = `reporte-${loan.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.html`
+    link.download = `report-${loan.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.html`
     link.click()
     URL.revokeObjectURL(link.href)
   }
@@ -292,110 +224,63 @@ export function Reports({ loan, onClose }: ReportsProps) {
           <CardHeader className="flex flex-row items-center justify-between print-hidden">
             <CardTitle className="text-xl text-foreground flex items-center gap-2">
               <FileText className="h-5 w-5 text-orange-400" />
-              Reporte del Préstamo
+              {t('reports.title')}
             </CardTitle>
             <div className="flex gap-2 flex-wrap">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handlePrint}
-                className="border-border/50"
-              >
+              <Button variant="outline" size="sm" onClick={handlePrint} className="border-border/50">
                 <Printer className="h-3.5 w-3.5 mr-1.5" />
-                Imprimir / PDF
+                {t('reports.print')}
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleDownloadCSV}
-                className="border-border/50"
-              >
+              <Button variant="outline" size="sm" onClick={handleDownloadCSV} className="border-border/50">
                 <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />
-                CSV
+                {t('reports.csv')}
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleDownloadHTML}
-                className="border-border/50"
-              >
+              <Button variant="outline" size="sm" onClick={handleDownloadHTML} className="border-border/50">
                 <FileCode className="h-3.5 w-3.5 mr-1.5" />
-                HTML
+                {t('reports.html')}
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={onClose}
-                className="border-border/50"
-              >
+              <Button variant="outline" size="sm" onClick={onClose} className="border-border/50">
                 <X className="h-3.5 w-3.5 mr-1.5" />
-                Cerrar
+                {t('reports.close')}
               </Button>
             </div>
           </CardHeader>
           <CardContent className="print:p-0">
             <div ref={reportRef} className="space-y-6 print-content">
-              {/* Header */}
               <div className="border-b border-border/50 pb-4">
                 <h1 className="text-2xl font-bold text-orange-400">{loan.name}</h1>
                 <p className="text-muted-foreground mt-1">
-                  Cuenta: {loan.sourceAccount} • Inicio: {formatDate(loan.startDate)} • {loan.termMonths} meses a {formatPercentage(loan.monthlyInterestRate)} mensual
+                  {t('reports.account')}: {loan.sourceAccount} • {t('reports.start')}: {formatDate(loan.startDate)} • {loan.termMonths} {t('dashboard.months')} {formatPercentage(loan.monthlyInterestRate)} {t('dashboard.monthly')}
                 </p>
                 {loan.notes && <p className="text-muted-foreground mt-2 text-sm italic">{loan.notes}</p>}
               </div>
 
-              {/* Summary */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-muted/20 p-4 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Total Prestado</p>
-                  <p className="text-lg font-bold text-orange-400">{formatCurrency(summary.totalBorrowed)}</p>
-                </div>
-                <div className="bg-muted/20 p-4 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Total Proyectado</p>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(summary.totalProjected)}</p>
-                </div>
-                <div className="bg-muted/20 p-4 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Total Pagado</p>
-                  <p className="text-lg font-bold text-emerald-400">{formatCurrency(summary.totalPaid)}</p>
-                </div>
-                <div className="bg-muted/20 p-4 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Saldo Pendiente</p>
-                  <p className="text-lg font-bold text-rose-400">{formatCurrency(summary.pendingBalance)}</p>
-                </div>
-                <div className="bg-muted/20 p-4 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Interés Normal</p>
-                  <p className="text-lg font-bold text-cyan-400">{formatCurrency(summary.normalInterestTotal)}</p>
-                </div>
-                <div className="bg-muted/20 p-4 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Interés Extra</p>
-                  <p className="text-lg font-bold text-amber-400">{formatCurrency(summary.extraInterestTotal)}</p>
-                </div>
-                <div className="bg-muted/20 p-4 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Pago Base Mensual</p>
-                  <p className="text-lg font-bold text-blue-400">{formatCurrency(summary.monthlyBasePayment)}</p>
-                </div>
-                <div className="bg-muted/20 p-4 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Estado</p>
-                  <p className="text-lg font-bold">{getStatusText(summary.status)}</p>
-                </div>
+                <div className="bg-muted/20 p-4 rounded-lg"><p className="text-xs text-muted-foreground">{t('dashboard.stats.totalBorrowed')}</p><p className="text-lg font-bold text-orange-400">{formatCurrency(summary.totalBorrowed)}</p></div>
+                <div className="bg-muted/20 p-4 rounded-lg"><p className="text-xs text-muted-foreground">{t('dashboard.stats.totalProjected')}</p><p className="text-lg font-bold text-foreground">{formatCurrency(summary.totalProjected)}</p></div>
+                <div className="bg-muted/20 p-4 rounded-lg"><p className="text-xs text-muted-foreground">{t('dashboard.stats.totalPaid')}</p><p className="text-lg font-bold text-emerald-400">{formatCurrency(summary.totalPaid)}</p></div>
+                <div className="bg-muted/20 p-4 rounded-lg"><p className="text-xs text-muted-foreground">{t('dashboard.stats.pendingBalance')}</p><p className="text-lg font-bold text-rose-400">{formatCurrency(summary.pendingBalance)}</p></div>
+                <div className="bg-muted/20 p-4 rounded-lg"><p className="text-xs text-muted-foreground">{t('dashboard.stats.normalInterest')}</p><p className="text-lg font-bold text-cyan-400">{formatCurrency(summary.normalInterestTotal)}</p></div>
+                <div className="bg-muted/20 p-4 rounded-lg"><p className="text-xs text-muted-foreground">{t('dashboard.stats.extraInterest')}</p><p className="text-lg font-bold text-amber-400">{formatCurrency(summary.extraInterestTotal)}</p></div>
+                <div className="bg-muted/20 p-4 rounded-lg"><p className="text-xs text-muted-foreground">{t('dashboard.stats.monthlyBasePayment')}</p><p className="text-lg font-bold text-blue-400">{formatCurrency(summary.monthlyBasePayment)}</p></div>
+                <div className="bg-muted/20 p-4 rounded-lg"><p className="text-xs text-muted-foreground">{t('payments.status')}</p><p className="text-lg font-bold">{getStatusText(summary.status, t)}</p></div>
               </div>
 
-              {/* Payments Table */}
               <div>
-                <h2 className="text-lg font-semibold text-foreground mb-4">Detalle de Pagos</h2>
+                <h2 className="text-lg font-semibold text-foreground mb-4">{t('reports.detail')}</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border/50">
-                        <th className="text-left py-2 px-2 text-muted-foreground">Mes</th>
-                        <th className="text-left py-2 px-2 text-muted-foreground">Fecha</th>
-                        <th className="text-right py-2 px-2 text-muted-foreground">Capital</th>
-                        <th className="text-right py-2 px-2 text-muted-foreground">Interés</th>
-                        <th className="text-right py-2 px-2 text-muted-foreground">Sobrante</th>
-                        <th className="text-right py-2 px-2 text-muted-foreground">Int. Extra</th>
-                        <th className="text-right py-2 px-2 text-muted-foreground">Total</th>
-                        <th className="text-right py-2 px-2 text-muted-foreground">Pagado</th>
-                        <th className="text-center py-2 px-2 text-muted-foreground">Estado</th>
+                        <th className="text-left py-2 px-2 text-muted-foreground">{t('payments.month')}</th>
+                        <th className="text-left py-2 px-2 text-muted-foreground">{t('payments.date')}</th>
+                        <th className="text-right py-2 px-2 text-muted-foreground">{t('payments.principal')}</th>
+                        <th className="text-right py-2 px-2 text-muted-foreground">{t('payments.interest')}</th>
+                        <th className="text-right py-2 px-2 text-muted-foreground">{t('payments.balance')}</th>
+                        <th className="text-right py-2 px-2 text-muted-foreground">{t('payments.extraInterest')}</th>
+                        <th className="text-right py-2 px-2 text-muted-foreground">{t('payments.total')}</th>
+                        <th className="text-right py-2 px-2 text-muted-foreground">{t('payments.paid')}</th>
+                        <th className="text-center py-2 px-2 text-muted-foreground">{t('payments.status')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -410,16 +295,8 @@ export function Reports({ loan, onClose }: ReportsProps) {
                           <td className="py-2 px-2 text-right text-orange-400 font-medium">{formatCurrency(payment.totalDue)}</td>
                           <td className="py-2 px-2 text-right text-emerald-400">{formatCurrency(payment.amountPaid)}</td>
                           <td className="py-2 px-2 text-center">
-                            <Badge 
-                              className={
-                                payment.status === 'pagado' 
-                                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
-                                  : payment.status === 'parcial'
-                                    ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-                                    : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                              }
-                            >
-                              {getStatusText(payment.status)}
+                            <Badge className={payment.status === 'pagado' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : payment.status === 'parcial' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}>
+                              {getStatusText(payment.status, t)}
                             </Badge>
                           </td>
                         </tr>
@@ -429,9 +306,8 @@ export function Reports({ loan, onClose }: ReportsProps) {
                 </div>
               </div>
 
-              {/* Footer */}
               <div className="pt-4 border-t border-border/50 text-center text-muted-foreground text-sm">
-                Reporte generado el {new Date().toLocaleString('es-MX')} • Banco Personal
+                {t('reports.generated', { date: generatedAt })}
               </div>
             </div>
           </CardContent>
