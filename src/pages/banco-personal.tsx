@@ -7,7 +7,7 @@ import { PaymentTable } from '@/components/loan/payment-table'
 import { Reports } from '@/components/loan/reports'
 import { LoanSelector } from '@/components/loan/loan-selector'
 import { useLoan } from '@/hooks/use-loan'
-import { useIpLocale } from '@/hooks/use-ip-locale'
+import { useI18n } from '@/src/i18n/i18n-provider'
 import { Spinner } from '@/components/ui/spinner'
 
 type View = 'dashboard' | 'create' | 'edit'
@@ -26,7 +26,15 @@ export function BancoPersonal() {
     payFull,
     resetPayments,
   } = useLoan()
-  const { localeInfo, primaryLanguage, isLoading: isLocaleLoading } = useIpLocale()
+  const {
+    language,
+    setLanguage,
+    supportedLanguages,
+    t,
+    countryName,
+    primaryLanguage,
+    isLocaleLoading,
+  } = useI18n()
 
   const [view, setView] = useState<View>('dashboard')
   const [showReport, setShowReport] = useState(false)
@@ -36,7 +44,7 @@ export function BancoPersonal() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Spinner className="w-8 h-8 text-orange-500 mx-auto mb-4" />
-          <p className="text-muted-foreground">Cargando Banco Personal...</p>
+          <p className="text-muted-foreground">{t('app.loading')}</p>
         </div>
       </div>
     )
@@ -52,30 +60,42 @@ export function BancoPersonal() {
                 <Landmark className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Banco Personal</h1>
-                <p className="text-xs text-muted-foreground">Administra tus préstamos personales</p>
+                <h1 className="text-xl font-bold text-foreground">{t('app.title')}</h1>
+                <p className="text-xs text-muted-foreground">{t('app.subtitle')}</p>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
               <div
                 className="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2 text-xs text-muted-foreground"
-                title="Detección aproximada por IP pública. No se guarda tu IP."
+                title={t('nav.localeTooltip')}
               >
                 <Globe2 className="h-3.5 w-3.5 text-orange-400" />
                 <span>
                   {isLocaleLoading
-                    ? 'Detectando ubicación...'
-                    : `${localeInfo.countryName} · ${primaryLanguage}`}
+                    ? t('nav.detectingLocation')
+                    : `${countryName} · ${primaryLanguage}`}
                 </span>
               </div>
+              <select
+                aria-label={t('nav.language')}
+                value={language}
+                onChange={(event) => setLanguage(event.target.value as typeof language)}
+                className="h-9 rounded-md border border-border/50 bg-background/50 px-2 text-xs text-foreground outline-none hover:bg-muted"
+              >
+                {supportedLanguages.map((languageCode) => (
+                  <option key={languageCode} value={languageCode}>
+                    {t(`language.${languageCode}`)}
+                  </option>
+                ))}
+              </select>
               <Button
                 variant={view === 'dashboard' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setView('dashboard')}
                 className={view === 'dashboard' ? 'bg-orange-500 hover:bg-orange-600' : 'border-border/50'}
               >
-                Dashboard
+                {t('nav.dashboard')}
               </Button>
               <Button
                 variant={view === 'create' ? 'default' : 'outline'}
@@ -84,7 +104,7 @@ export function BancoPersonal() {
                 className={view === 'create' ? 'bg-orange-500 hover:bg-orange-600' : 'border-border/50'}
               >
                 <Plus className="h-3.5 w-3.5 mr-1" />
-                Nuevo Préstamo
+                {t('nav.newLoan')}
               </Button>
               {activeLoan && (
                 <Button
@@ -93,7 +113,7 @@ export function BancoPersonal() {
                   onClick={() => setShowReport(true)}
                   className="border-border/50"
                 >
-                  Ver Reporte
+                  {t('nav.viewReport')}
                 </Button>
               )}
             </div>
@@ -154,13 +174,13 @@ export function BancoPersonal() {
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500/20 to-blue-500/20 flex items-center justify-center mx-auto mb-4">
               <Landmark className="h-10 w-10 text-orange-400" />
             </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">Bienvenido a Banco Personal</h2>
-            <p className="text-muted-foreground mb-6">Comienza creando tu primer préstamo personal</p>
+            <h2 className="text-xl font-semibold text-foreground mb-2">{t('empty.welcome')}</h2>
+            <p className="text-muted-foreground mb-6">{t('empty.description')}</p>
             <Button
               onClick={() => setView('create')}
               className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
             >
-              Crear Primer Préstamo
+              {t('empty.createFirstLoan')}
             </Button>
           </div>
         )}
