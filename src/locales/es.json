@@ -58,6 +58,7 @@
       "totalPaid": "Total Pagado",
       "normalInterest": "Interés Normal",
       "extraInterest": "Interés Extra",
+      "extraInterestPercent": "{{percent}} del préstamo",
       "pendingBalance": "Saldo Pendiente"
     },
     "progress": "Progreso del Préstamo",
