@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Globe2, Landmark, Plus } from 'lucide-react'
+import { Bell, BellOff, Globe2, Landmark, Plus } from 'lucide-react'
 import { Dashboard } from '@/components/loan/dashboard'
 import { LoanForm } from '@/components/loan/loan-form'
 import { PaymentTable } from '@/components/loan/payment-table'
@@ -8,6 +8,7 @@ import { Reports } from '@/components/loan/reports'
 import { LoanSelector } from '@/components/loan/loan-selector'
 import { useLoan } from '@/hooks/use-loan'
 import { useCurrencyConversion } from '@/hooks/use-currency-conversion'
+import { usePaymentReminders } from '@/hooks/use-payment-reminders'
 import { useI18n } from '@/src/i18n/i18n-provider'
 import { formatMoney } from '@/src/currency/currency'
 import { Spinner } from '@/components/ui/spinner'
@@ -40,9 +41,25 @@ export function BancoPersonal() {
   } = useI18n()
   const currencyConversion = useCurrencyConversion(countryCode)
   const convertedLoanAmount = activeLoan ? currencyConversion.convertFromMxn(activeLoan.amount) : null
+  const getReminderText = useCallback((reminderPayment: { loanName: string; payment: { monthNumber: number }; daysUntilDue: number }) => {
+    return {
+      title: t('reminders.title'),
+      body: reminderPayment.daysUntilDue === 0
+        ? t('reminders.bodyToday', { month: reminderPayment.payment.monthNumber, loan: reminderPayment.loanName })
+        : t('reminders.bodySoon', { days: reminderPayment.daysUntilDue, month: reminderPayment.payment.monthNumber, loan: reminderPayment.loanName }),
+    }
+  }, [t])
+  const reminders = usePaymentReminders(loans, getReminderText)
 
   const [view, setView] = useState<View>('dashboard')
   const [showReport, setShowReport] = useState(false)
+
+  const handleEnableReminders = async () => {
+    const permission = await reminders.requestPermission()
+    if (permission === 'granted') {
+      reminders.checkReminders()
+    }
+  }
 
   if (isLoading) {
     return (
@@ -96,6 +113,27 @@ export function BancoPersonal() {
                     : `${countryName} · ${primaryLanguage}`}
                 </span>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEnableReminders}
+                disabled={reminders.permission === 'unsupported' || reminders.permission === 'denied'}
+                title={t('reminders.permissionTooltip')}
+                className="border-border/50"
+              >
+                {reminders.permission === 'granted' ? (
+                  <Bell className="h-3.5 w-3.5 mr-1.5 text-emerald-400" />
+                ) : (
+                  <BellOff className="h-3.5 w-3.5 mr-1.5 text-orange-400" />
+                )}
+                {reminders.permission === 'unsupported'
+                  ? t('reminders.unsupported')
+                  : reminders.permission === 'denied'
+                    ? t('reminders.blocked')
+                    : reminders.permission === 'granted'
+                      ? `${t('reminders.enabled')} ${reminders.upcomingCount > 0 ? `(${reminders.upcomingCount})` : ''}`
+                      : t('reminders.enable')}
+              </Button>
               <select
                 aria-label={t('nav.language')}
                 value={language}
