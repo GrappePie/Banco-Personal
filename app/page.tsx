@@ -97,6 +97,10 @@ export default function BancoPersonal() {
             loans={loans}
             activeLoanId={activeLoanId}
             onSelect={setActiveLoanId}
+            onEdit={(loanId) => {
+              setActiveLoanId(loanId)
+              setView('edit')
+            }}
             onDelete={deleteLoan}
             onNew={() => setView('create')}
           />
@@ -126,7 +130,7 @@ export default function BancoPersonal() {
 
         {view === 'dashboard' && activeLoan && (
           <>
-            <Dashboard loan={activeLoan} />
+            <Dashboard loan={activeLoan} onEdit={() => setView('edit')} />
             <PaymentTable
               loan={activeLoan}
               onPayment={registerPayment}

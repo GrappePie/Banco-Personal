@@ -2,11 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import type { Loan, LoanSummary } from '@/lib/loan-types'
 import { calculateLoanSummary, formatCurrency, formatPercentage } from '@/lib/loan-calculations'
 
 interface DashboardProps {
   loan: Loan
+  onEdit?: () => void
 }
 
 function getStatusBadge(status: LoanSummary['status']) {
@@ -21,7 +23,7 @@ function getStatusBadge(status: LoanSummary['status']) {
   }
 }
 
-export function Dashboard({ loan }: DashboardProps) {
+export function Dashboard({ loan, onEdit }: DashboardProps) {
   const summary = calculateLoanSummary(loan)
 
   const stats = [
@@ -80,7 +82,23 @@ export function Dashboard({ loan }: DashboardProps) {
               {loan.termMonths} meses • {formatPercentage(loan.monthlyInterestRate)} mensual • {loan.sourceAccount}
             </p>
           </div>
-          {getStatusBadge(summary.status)}
+          <div className="flex items-center gap-2">
+            {onEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onEdit}
+                className="border-border/50 hover:bg-muted"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                  <path d="m15 5 4 4"/>
+                </svg>
+                Editar
+              </Button>
+            )}
+            {getStatusBadge(summary.status)}
+          </div>
         </CardHeader>
       </Card>
 

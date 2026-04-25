@@ -9,11 +9,12 @@ interface LoanSelectorProps {
   loans: Loan[]
   activeLoanId: string | null
   onSelect: (loanId: string) => void
+  onEdit: (loanId: string) => void
   onDelete: (loanId: string) => void
   onNew: () => void
 }
 
-export function LoanSelector({ loans, activeLoanId, onSelect, onDelete, onNew }: LoanSelectorProps) {
+export function LoanSelector({ loans, activeLoanId, onSelect, onEdit, onDelete, onNew }: LoanSelectorProps) {
   if (loans.length === 0) {
     return (
       <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
@@ -57,13 +58,33 @@ export function LoanSelector({ loans, activeLoanId, onSelect, onDelete, onNew }:
               size="sm"
               onClick={(e) => {
                 e.stopPropagation()
+                onEdit(loan.id)
+              }}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-blue-400 hover:bg-blue-500/10"
+              title="Editar préstamo"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                <path d="m15 5 4 4"/>
+              </svg>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
                 if (confirm(`¿Eliminar el préstamo "${loan.name}"?`)) {
                   onDelete(loan.id)
                 }
               }}
               className="h-8 w-8 p-0 text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10"
+              title="Eliminar préstamo"
             >
-              ✕
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18"/>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+              </svg>
             </Button>
           </div>
         )
