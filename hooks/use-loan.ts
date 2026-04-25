@@ -47,9 +47,13 @@ export function useLoan() {
   }, [loans])
 
   // Update loan
-  const updateLoan = useCallback((updatedLoan: Loan) => {
+  const updateLoan = useCallback((updatedLoan: Loan, recalculate = true) => {
+    const finalLoan = recalculate 
+      ? { ...updatedLoan, payments: recalculatePayments(updatedLoan) }
+      : updatedLoan
+    
     const updatedLoans = loans.map(l => 
-      l.id === updatedLoan.id ? updatedLoan : l
+      l.id === finalLoan.id ? finalLoan : l
     )
     setLoans(updatedLoans)
     saveLoans(updatedLoans)
@@ -98,7 +102,7 @@ export function useLoan() {
     // Recalculate all payments to handle carry-over
     updatedLoan.payments = recalculatePayments(updatedLoan)
 
-    updateLoan(updatedLoan)
+    updateLoan(updatedLoan, false) // Already recalculated
   }, [activeLoan, updateLoan])
 
   // Pay full amount
@@ -126,7 +130,7 @@ export function useLoan() {
     }
 
     resetLoan.payments = recalculatePayments(resetLoan)
-    updateLoan(resetLoan)
+    updateLoan(resetLoan, false) // Already recalculated
   }, [activeLoan, updateLoan])
 
   return {
