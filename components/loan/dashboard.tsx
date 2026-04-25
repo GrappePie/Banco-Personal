@@ -30,6 +30,9 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
   const { t } = useI18n()
   const { formatCurrency } = useLocalizedCurrency()
   const summary = calculateLoanSummary(loan)
+  const extraInterestPercent = summary.totalBorrowed > 0
+    ? (summary.extraInterestTotal / summary.totalBorrowed) * 100
+    : 0
 
   const stats = [
     {
@@ -65,6 +68,7 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
     {
       label: t('dashboard.stats.extraInterest'),
       value: formatCurrency(summary.extraInterestTotal),
+      helper: t('dashboard.stats.extraInterestPercent', { percent: formatPercentage(extraInterestPercent) }),
       icon: AlertTriangle,
       color: 'text-amber-400',
     },
@@ -112,6 +116,9 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
                 <span className="text-xs text-muted-foreground">{stat.label}</span>
               </div>
               <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>
+              {'helper' in stat && stat.helper && (
+                <p className="text-[11px] text-muted-foreground mt-1">{stat.helper}</p>
+              )}
             </CardContent>
           </Card>
         ))}
