@@ -32,12 +32,12 @@ function getStatusBadge(status: PaymentMonth['status'], t: (key: string) => stri
 
 export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: PaymentTableProps) {
   const { t } = useI18n()
-  const { formatCurrency } = useLocalizedCurrency()
+  const { activeCurrency, convertFromMxn, convertToMxn, formatCurrency } = useLocalizedCurrency()
   const [editingMonth, setEditingMonth] = useState<number | null>(null)
   const [paymentAmount, setPaymentAmount] = useState('')
 
   const handlePaymentSubmit = (monthIndex: number) => {
-    const amount = parseFloat(paymentAmount) || 0
+    const amount = convertToMxn(parseFloat(paymentAmount) || 0)
     onPayment(monthIndex, amount)
     setEditingMonth(null)
     setPaymentAmount('')
@@ -50,12 +50,7 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
           <CalendarDays className="h-5 w-5 text-orange-400" />
           {t('payments.title')}
         </CardTitle>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onResetPayments}
-          className="border-rose-500/30 text-rose-400 hover:bg-rose-500/10"
-        >
+        <Button variant="outline" size="sm" onClick={onResetPayments} className="border-rose-500/30 text-rose-400 hover:bg-rose-500/10">
           <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
           {t('payments.reset')}
         </Button>
@@ -94,31 +89,14 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
                   <td className="py-3 px-2">
                     {editingMonth === index ? (
                       <div className="flex items-center gap-1">
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={paymentAmount}
-                          onChange={(e) => setPaymentAmount(e.target.value)}
-                          placeholder={t('payments.amount')}
-                          className="w-24 h-7 text-xs bg-background/50"
-                        />
-                        <Button size="sm" onClick={() => handlePaymentSubmit(index)} className="h-7 px-2 bg-emerald-500 hover:bg-emerald-600 text-xs">
-                          <Check className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => { setEditingMonth(null); setPaymentAmount('') }} className="h-7 px-2 text-xs">
-                          <X className="h-3.5 w-3.5" />
-                        </Button>
+                        <Input type="number" step="0.01" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} placeholder={`${t('payments.amount')} (${activeCurrency})`} className="w-28 h-7 text-xs bg-background/50" />
+                        <Button size="sm" onClick={() => handlePaymentSubmit(index)} className="h-7 px-2 bg-emerald-500 hover:bg-emerald-600 text-xs"><Check className="h-3.5 w-3.5" /></Button>
+                        <Button size="sm" variant="outline" onClick={() => { setEditingMonth(null); setPaymentAmount('') }} className="h-7 px-2 text-xs"><X className="h-3.5 w-3.5" /></Button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 justify-center">
-                        <Button size="sm" variant="outline" onClick={() => { setEditingMonth(index); setPaymentAmount(payment.totalDue.toFixed(2)) }} className="h-7 px-2 text-xs border-border/50">
-                          {t('payments.pay')}
-                        </Button>
-                        {payment.status !== 'pagado' && (
-                          <Button size="sm" onClick={() => onPayFull(index)} className="h-7 px-2 text-xs bg-blue-500 hover:bg-blue-600">
-                            {t('payments.complete')}
-                          </Button>
-                        )}
+                        <Button size="sm" variant="outline" onClick={() => { setEditingMonth(index); setPaymentAmount(convertFromMxn(payment.totalDue).toFixed(2)) }} className="h-7 px-2 text-xs border-border/50">{t('payments.pay')}</Button>
+                        {payment.status !== 'pagado' && <Button size="sm" onClick={() => onPayFull(index)} className="h-7 px-2 text-xs bg-blue-500 hover:bg-blue-600">{t('payments.complete')}</Button>}
                       </div>
                     )}
                   </td>
@@ -132,20 +110,12 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
           {loan.payments.map((payment, index) => (
             <Card key={payment.monthNumber} className="bg-background/30 border-border/30">
               <CardContent className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-foreground">{t('payments.month')} #{payment.monthNumber}</span>
-                  {getStatusBadge(payment.status, t)}
-                </div>
+                <div className="flex items-center justify-between"><span className="font-bold text-foreground">{t('payments.month')} #{payment.monthNumber}</span>{getStatusBadge(payment.status, t)}</div>
                 <p className="text-sm text-muted-foreground">{formatDate(payment.estimatedDate)}</p>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div><span className="text-muted-foreground">{t('payments.principal')}:</span><span className="ml-2 text-foreground">{formatCurrency(payment.principal)}</span></div>
                   <div><span className="text-muted-foreground">{t('payments.interest')}:</span><span className="ml-2 text-cyan-400">{formatCurrency(payment.normalInterest)}</span></div>
-                  {payment.previousBalance > 0 && (
-                    <>
-                      <div><span className="text-muted-foreground">{t('payments.balance')}:</span><span className="ml-2 text-amber-400">{formatCurrency(payment.previousBalance)}</span></div>
-                      <div><span className="text-muted-foreground">{t('payments.extraInterest')}:</span><span className="ml-2 text-amber-400">{formatCurrency(payment.extraInterest)}</span></div>
-                    </>
-                  )}
+                  {payment.previousBalance > 0 && <><div><span className="text-muted-foreground">{t('payments.balance')}:</span><span className="ml-2 text-amber-400">{formatCurrency(payment.previousBalance)}</span></div><div><span className="text-muted-foreground">{t('payments.extraInterest')}:</span><span className="ml-2 text-amber-400">{formatCurrency(payment.extraInterest)}</span></div></>}
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-border/30">
                   <div><span className="text-muted-foreground text-sm">{t('payments.total')}:</span><span className="ml-2 text-orange-400 font-bold">{formatCurrency(payment.totalDue)}</span></div>
@@ -153,13 +123,13 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
                 </div>
                 {editingMonth === index ? (
                   <div className="flex items-center gap-2 pt-2">
-                    <Input type="number" step="0.01" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} placeholder={t('payments.amountToPay')} className="flex-1 bg-background/50" />
+                    <Input type="number" step="0.01" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} placeholder={`${t('payments.amountToPay')} (${activeCurrency})`} className="flex-1 bg-background/50" />
                     <Button size="sm" onClick={() => handlePaymentSubmit(index)} className="bg-emerald-500 hover:bg-emerald-600"><Check className="h-4 w-4" /></Button>
                     <Button size="sm" variant="outline" onClick={() => { setEditingMonth(null); setPaymentAmount('') }}><X className="h-4 w-4" /></Button>
                   </div>
                 ) : (
                   <div className="flex gap-2 pt-2">
-                    <Button size="sm" variant="outline" onClick={() => { setEditingMonth(index); setPaymentAmount(payment.totalDue.toFixed(2)) }} className="flex-1 border-border/50">{t('payments.registerPayment')}</Button>
+                    <Button size="sm" variant="outline" onClick={() => { setEditingMonth(index); setPaymentAmount(convertFromMxn(payment.totalDue).toFixed(2)) }} className="flex-1 border-border/50">{t('payments.registerPayment')}</Button>
                     {payment.status !== 'pagado' && <Button size="sm" onClick={() => onPayFull(index)} className="flex-1 bg-blue-500 hover:bg-blue-600">{t('payments.payFull')}</Button>}
                   </div>
                 )}
