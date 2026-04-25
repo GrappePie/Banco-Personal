@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Pencil, Wallet, CalendarDays, BarChart3, CheckCircle2, TrendingUp, AlertTriangle, Clock } from 'lucide-react'
 import type { Loan, LoanSummary } from '@/lib/loan-types'
 import { calculateLoanSummary, formatCurrency, formatPercentage } from '@/lib/loan-calculations'
 
@@ -30,43 +31,43 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
     {
       label: 'Total Prestado',
       value: formatCurrency(summary.totalBorrowed),
-      icon: '💰',
+      icon: Wallet,
       color: 'text-orange-400',
     },
     {
       label: 'Pago Base Mensual',
       value: formatCurrency(summary.monthlyBasePayment),
-      icon: '📅',
+      icon: CalendarDays,
       color: 'text-blue-400',
     },
     {
       label: 'Total Proyectado',
       value: formatCurrency(summary.totalProjected),
-      icon: '📊',
+      icon: BarChart3,
       color: 'text-purple-400',
     },
     {
       label: 'Total Pagado',
       value: formatCurrency(summary.totalPaid),
-      icon: '✅',
+      icon: CheckCircle2,
       color: 'text-emerald-400',
     },
     {
       label: 'Interés Normal',
       value: formatCurrency(summary.normalInterestTotal),
-      icon: '📈',
+      icon: TrendingUp,
       color: 'text-cyan-400',
     },
     {
       label: 'Interés Extra',
       value: formatCurrency(summary.extraInterestTotal),
-      icon: '⚠️',
+      icon: AlertTriangle,
       color: 'text-amber-400',
     },
     {
       label: 'Saldo Pendiente',
       value: formatCurrency(summary.pendingBalance),
-      icon: '⏳',
+      icon: Clock,
       color: 'text-rose-400',
     },
   ]
@@ -90,10 +91,7 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
                 onClick={onEdit}
                 className="border-border/50 hover:bg-muted"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5">
-                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                  <path d="m15 5 4 4"/>
-                </svg>
+                <Pencil className="h-3.5 w-3.5 mr-1.5" />
                 Editar
               </Button>
             )}
@@ -108,7 +106,7 @@ export function Dashboard({ loan, onEdit }: DashboardProps) {
           <Card key={stat.label} className="bg-card/50 border-border/50 backdrop-blur-sm hover:bg-card/70 transition-colors">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">{stat.icon}</span>
+                <stat.icon className={`h-4 w-4 ${stat.color}`} />
                 <span className="text-xs text-muted-foreground">{stat.label}</span>
               </div>
               <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>

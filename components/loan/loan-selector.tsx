@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Pencil, Trash2, Plus } from 'lucide-react'
 import type { Loan } from '@/lib/loan-types'
 import { formatCurrency, calculateLoanSummary } from '@/lib/loan-calculations'
 
@@ -63,10 +64,7 @@ export function LoanSelector({ loans, activeLoanId, onSelect, onEdit, onDelete, 
               className="h-8 w-8 p-0 text-muted-foreground hover:text-blue-400 hover:bg-blue-500/10"
               title="Editar préstamo"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                <path d="m15 5 4 4"/>
-              </svg>
+              <Pencil className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant="ghost"
@@ -80,11 +78,7 @@ export function LoanSelector({ loans, activeLoanId, onSelect, onEdit, onDelete, 
               className="h-8 w-8 p-0 text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10"
               title="Eliminar préstamo"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18"/>
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-              </svg>
+              <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
         )
@@ -95,7 +89,8 @@ export function LoanSelector({ loans, activeLoanId, onSelect, onEdit, onDelete, 
         onClick={onNew}
         className="border-dashed border-border/50 hover:bg-muted"
       >
-        + Nuevo
+        <Plus className="h-3.5 w-3.5 mr-1" />
+        Nuevo
       </Button>
     </div>
   )
