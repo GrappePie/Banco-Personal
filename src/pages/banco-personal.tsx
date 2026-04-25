@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Landmark, Plus } from 'lucide-react'
+import { Globe2, Landmark, Plus } from 'lucide-react'
 import { Dashboard } from '@/components/loan/dashboard'
 import { LoanForm } from '@/components/loan/loan-form'
 import { PaymentTable } from '@/components/loan/payment-table'
 import { Reports } from '@/components/loan/reports'
 import { LoanSelector } from '@/components/loan/loan-selector'
 import { useLoan } from '@/hooks/use-loan'
+import { useIpLocale } from '@/hooks/use-ip-locale'
 import { Spinner } from '@/components/ui/spinner'
 
 type View = 'dashboard' | 'create' | 'edit'
@@ -25,6 +26,7 @@ export function BancoPersonal() {
     payFull,
     resetPayments,
   } = useLoan()
+  const { localeInfo, primaryLanguage, isLoading: isLocaleLoading } = useIpLocale()
 
   const [view, setView] = useState<View>('dashboard')
   const [showReport, setShowReport] = useState(false)
@@ -55,7 +57,18 @@ export function BancoPersonal() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <div
+                className="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-3 py-2 text-xs text-muted-foreground"
+                title="Detección aproximada por IP pública. No se guarda tu IP."
+              >
+                <Globe2 className="h-3.5 w-3.5 text-orange-400" />
+                <span>
+                  {isLocaleLoading
+                    ? 'Detectando ubicación...'
+                    : `${localeInfo.countryName} · ${primaryLanguage}`}
+                </span>
+              </div>
               <Button
                 variant={view === 'dashboard' ? 'default' : 'outline'}
                 size="sm"
