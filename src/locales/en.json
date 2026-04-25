@@ -1,0 +1,114 @@
+{
+  "app": {
+    "title": "Personal Bank",
+    "subtitle": "Manage your personal loans",
+    "loading": "Loading Personal Bank..."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "newLoan": "New Loan",
+    "viewReport": "View Report",
+    "detectingLocation": "Detecting location...",
+    "localeTooltip": "Approximate detection by public IP. Your IP is not stored.",
+    "language": "Language"
+  },
+  "language": {
+    "es": "Spanish",
+    "en": "English",
+    "ro": "Romanian",
+    "ru": "Russian"
+  },
+  "empty": {
+    "welcome": "Welcome to Personal Bank",
+    "description": "Start by creating your first personal loan",
+    "createFirstLoan": "Create First Loan",
+    "noLoans": "You have no registered loans",
+    "new": "New"
+  },
+  "status": {
+    "paid": "Paid",
+    "partial": "Partial",
+    "pending": "Pending"
+  },
+  "dashboard": {
+    "edit": "Edit",
+    "months": "months",
+    "monthly": "monthly",
+    "stats": {
+      "totalBorrowed": "Total Borrowed",
+      "monthlyBasePayment": "Monthly Base Payment",
+      "totalProjected": "Projected Total",
+      "totalPaid": "Total Paid",
+      "normalInterest": "Regular Interest",
+      "extraInterest": "Extra Interest",
+      "pendingBalance": "Pending Balance"
+    },
+    "progress": "Loan Progress",
+    "paid": "Paid",
+    "total": "Total"
+  },
+  "form": {
+    "editTitle": "Edit Loan",
+    "newTitle": "New Loan",
+    "loanName": "Loan Name",
+    "loanNamePlaceholder": "Example: RTX 5070 TUF",
+    "amount": "Loan Amount (MXN)",
+    "term": "Term in Months",
+    "other": "Other",
+    "customTermPlaceholder": "Number of months",
+    "monthlyInterestRate": "Monthly Interest Rate (%)",
+    "interestType": "Interest Type",
+    "flat": "Flat",
+    "declining": "Declining balance",
+    "flatDescription": "Interest is always calculated over the original loan amount.",
+    "decliningDescription": "Interest is calculated over the remaining balance, decreasing every month.",
+    "startDate": "Start Date",
+    "sourceAccount": "Source Account",
+    "sourceAccountPlaceholder": "Example: Revolut, BBVA, etc.",
+    "notes": "Notes",
+    "notesPlaceholder": "Additional notes...",
+    "saveChanges": "Save Changes",
+    "createLoan": "Create Loan",
+    "cancel": "Cancel",
+    "defaultLoanName": "Unnamed loan",
+    "defaultSourceAccount": "Not specified"
+  },
+  "selector": {
+    "editLoan": "Edit loan",
+    "deleteLoan": "Delete loan",
+    "confirmDelete": "Delete loan \"{{name}}\"?"
+  },
+  "payments": {
+    "title": "Payment Calendar",
+    "reset": "Reset Payments",
+    "month": "Month",
+    "estimatedDate": "Est. Date",
+    "date": "Date",
+    "principal": "Principal",
+    "interest": "Interest",
+    "previousBalance": "Previous Balance",
+    "extraInterest": "Extra Interest",
+    "total": "Total",
+    "paid": "Paid",
+    "balance": "Balance",
+    "status": "Status",
+    "actions": "Actions",
+    "amount": "Amount",
+    "amountToPay": "Amount to pay",
+    "pay": "Pay",
+    "complete": "Full",
+    "registerPayment": "Register Payment",
+    "payFull": "Pay Full"
+  },
+  "reports": {
+    "title": "Loan Report",
+    "print": "Print / PDF",
+    "csv": "CSV",
+    "html": "HTML",
+    "close": "Close",
+    "account": "Account",
+    "start": "Start",
+    "detail": "Payment Details",
+    "generated": "Report generated on {{date}} • Personal Bank"
+  }
+}
