@@ -27,6 +27,7 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
   const [customTerm, setCustomTerm] = useState('')
   const [useCustomTerm, setUseCustomTerm] = useState(false)
   const [monthlyInterestRate, setMonthlyInterestRate] = useState(initialData?.monthlyInterestRate?.toString() || '1.2')
+  const [lateInterestRate, setLateInterestRate] = useState((initialData?.lateInterestRate ?? initialData?.monthlyInterestRate ?? 1.2).toString())
   const [interestType, setInterestType] = useState<InterestType>(initialData?.interestType || 'flat')
   const [startDate, setStartDate] = useState(initialData?.startDate || getTodayDate())
   const [sourceAccount, setSourceAccount] = useState(initialData?.sourceAccount || '')
@@ -42,6 +43,7 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
       amount: sanitizeNumber(amount),
       termMonths: finalTerm,
       monthlyInterestRate: sanitizeInterestRate(monthlyInterestRate),
+      lateInterestRate: sanitizeInterestRate(lateInterestRate),
       interestType,
       startDate: startDate || getTodayDate(),
       sourceAccount: sourceAccount.trim() || t('form.defaultSourceAccount'),
@@ -61,176 +63,72 @@ export function LoanForm({ onSubmit, onCancel, initialData }: LoanFormProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-foreground">{t('form.loanName')}</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('form.loanNamePlaceholder')}
-              className="bg-background/50 border-border/50"
-            />
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('form.loanNamePlaceholder')} className="bg-background/50 border-border/50" />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="amount" className="text-foreground">{t('form.amount')}</Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              min="0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="15650.11"
-              className="bg-background/50 border-border/50"
-            />
+            <Input id="amount" type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="15650.11" className="bg-background/50 border-border/50" />
           </div>
 
           <div className="space-y-2">
             <Label className="text-foreground">{t('form.term')}</Label>
             <div className="flex flex-wrap gap-2">
               {TERM_OPTIONS.map((term) => (
-                <Button
-                  key={term}
-                  type="button"
-                  variant={!useCustomTerm && termMonths === term.toString() ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    setTermMonths(term.toString())
-                    setUseCustomTerm(false)
-                  }}
-                  className={!useCustomTerm && termMonths === term.toString() 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white' 
-                    : 'border-border/50 hover:bg-muted'
-                  }
-                >
+                <Button key={term} type="button" variant={!useCustomTerm && termMonths === term.toString() ? 'default' : 'outline'} size="sm" onClick={() => { setTermMonths(term.toString()); setUseCustomTerm(false) }} className={!useCustomTerm && termMonths === term.toString() ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'border-border/50 hover:bg-muted'}>
                   {term}
                 </Button>
               ))}
-              <Button
-                type="button"
-                variant={useCustomTerm ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setUseCustomTerm(true)}
-                className={useCustomTerm 
-                  ? 'bg-orange-500 hover:bg-orange-600 text-white' 
-                  : 'border-border/50 hover:bg-muted'
-                }
-              >
+              <Button type="button" variant={useCustomTerm ? 'default' : 'outline'} size="sm" onClick={() => setUseCustomTerm(true)} className={useCustomTerm ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'border-border/50 hover:bg-muted'}>
                 {t('form.other')}
               </Button>
             </div>
             {useCustomTerm && (
-              <Input
-                type="number"
-                min="1"
-                value={customTerm}
-                onChange={(e) => setCustomTerm(e.target.value)}
-                placeholder={t('form.customTermPlaceholder')}
-                className="bg-background/50 border-border/50 mt-2"
-              />
+              <Input type="number" min="1" value={customTerm} onChange={(e) => setCustomTerm(e.target.value)} placeholder={t('form.customTermPlaceholder')} className="bg-background/50 border-border/50 mt-2" />
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="rate" className="text-foreground">{t('form.monthlyInterestRate')}</Label>
-            <Input
-              id="rate"
-              type="number"
-              step="0.01"
-              min="0"
-              value={monthlyInterestRate}
-              onChange={(e) => setMonthlyInterestRate(e.target.value)}
-              placeholder="1.2"
-              className="bg-background/50 border-border/50"
-            />
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="rate" className="text-foreground">{t('form.monthlyInterestRate')}</Label>
+              <Input id="rate" type="number" step="0.01" min="0" value={monthlyInterestRate} onChange={(e) => setMonthlyInterestRate(e.target.value)} placeholder="1.2" className="bg-background/50 border-border/50" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lateRate" className="text-foreground">{t('form.lateInterestRate')}</Label>
+              <Input id="lateRate" type="number" step="0.01" min="0" value={lateInterestRate} onChange={(e) => setLateInterestRate(e.target.value)} placeholder={monthlyInterestRate || '1.2'} className="bg-background/50 border-border/50" />
+              <p className="text-xs text-muted-foreground">{t('form.lateInterestDescription')}</p>
+            </div>
           </div>
 
           <div className="space-y-2">
             <Label className="text-foreground">{t('form.interestType')}</Label>
             <div className="flex gap-2">
-              <Button
-                type="button"
-                variant={interestType === 'flat' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setInterestType('flat')}
-                className={interestType === 'flat' 
-                  ? 'bg-orange-500 hover:bg-orange-600 text-white flex-1' 
-                  : 'border-border/50 hover:bg-muted flex-1'
-                }
-              >
-                {t('form.flat')}
-              </Button>
-              <Button
-                type="button"
-                variant={interestType === 'declining' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setInterestType('declining')}
-                className={interestType === 'declining' 
-                  ? 'bg-orange-500 hover:bg-orange-600 text-white flex-1' 
-                  : 'border-border/50 hover:bg-muted flex-1'
-                }
-              >
-                {t('form.declining')}
-              </Button>
+              <Button type="button" variant={interestType === 'flat' ? 'default' : 'outline'} size="sm" onClick={() => setInterestType('flat')} className={interestType === 'flat' ? 'bg-orange-500 hover:bg-orange-600 text-white flex-1' : 'border-border/50 hover:bg-muted flex-1'}>{t('form.flat')}</Button>
+              <Button type="button" variant={interestType === 'declining' ? 'default' : 'outline'} size="sm" onClick={() => setInterestType('declining')} className={interestType === 'declining' ? 'bg-orange-500 hover:bg-orange-600 text-white flex-1' : 'border-border/50 hover:bg-muted flex-1'}>{t('form.declining')}</Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {interestType === 'flat' 
-                ? t('form.flatDescription')
-                : t('form.decliningDescription')
-              }
-            </p>
+            <p className="text-xs text-muted-foreground">{interestType === 'flat' ? t('form.flatDescription') : t('form.decliningDescription')}</p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="startDate" className="text-foreground">{t('form.startDate')}</Label>
-            <Input
-              id="startDate"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="bg-background/50 border-border/50"
-            />
+            <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-background/50 border-border/50" />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="account" className="text-foreground">{t('form.sourceAccount')}</Label>
-            <Input
-              id="account"
-              value={sourceAccount}
-              onChange={(e) => setSourceAccount(e.target.value)}
-              placeholder={t('form.sourceAccountPlaceholder')}
-              className="bg-background/50 border-border/50"
-            />
+            <Input id="account" value={sourceAccount} onChange={(e) => setSourceAccount(e.target.value)} placeholder={t('form.sourceAccountPlaceholder')} className="bg-background/50 border-border/50" />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="notes" className="text-foreground">{t('form.notes')}</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder={t('form.notesPlaceholder')}
-              rows={3}
-              className="bg-background/50 border-border/50"
-            />
+            <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('form.notesPlaceholder')} rows={3} className="bg-background/50 border-border/50" />
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button 
-              type="submit" 
-              className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
-            >
+            <Button type="submit" className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
               {initialData ? t('form.saveChanges') : t('form.createLoan')}
             </Button>
-            {onCancel && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={onCancel}
-                className="border-border/50 hover:bg-muted"
-              >
-                {t('form.cancel')}
-              </Button>
-            )}
+            {onCancel && <Button type="button" variant="outline" onClick={onCancel} className="border-border/50 hover:bg-muted">{t('form.cancel')}</Button>}
           </div>
         </form>
       </CardContent>
