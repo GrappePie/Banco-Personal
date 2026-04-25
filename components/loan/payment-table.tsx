@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { CalendarDays, RotateCcw, Check, X } from 'lucide-react'
 import type { Loan, PaymentMonth } from '@/lib/loan-types'
 import { formatCurrency, formatDate } from '@/lib/loan-calculations'
 
@@ -42,7 +43,7 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
     <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl text-foreground flex items-center gap-2">
-          <span>📅</span>
+          <CalendarDays className="h-5 w-5 text-orange-400" />
           Calendario de Pagos
         </CardTitle>
         <Button
@@ -51,6 +52,7 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
           onClick={onResetPayments}
           className="border-rose-500/30 text-rose-400 hover:bg-rose-500/10"
         >
+          <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
           Reiniciar Pagos
         </Button>
       </CardHeader>
@@ -102,7 +104,7 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
                           onClick={() => handlePaymentSubmit(index)}
                           className="h-7 px-2 bg-emerald-500 hover:bg-emerald-600 text-xs"
                         >
-                          ✓
+                          <Check className="h-3.5 w-3.5" />
                         </Button>
                         <Button 
                           size="sm" 
@@ -113,7 +115,7 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
                           }}
                           className="h-7 px-2 text-xs"
                         >
-                          ✕
+                          <X className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     ) : (
@@ -207,7 +209,7 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
                       onClick={() => handlePaymentSubmit(index)}
                       className="bg-emerald-500 hover:bg-emerald-600"
                     >
-                      ✓
+                      <Check className="h-4 w-4" />
                     </Button>
                     <Button 
                       size="sm" 
@@ -217,7 +219,7 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
                         setPaymentAmount('')
                       }}
                     >
-                      ✕
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
