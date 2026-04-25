@@ -4,8 +4,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash2, Plus } from 'lucide-react'
 import type { Loan } from '@/lib/loan-types'
-import { formatCurrency, calculateLoanSummary } from '@/lib/loan-calculations'
+import { calculateLoanSummary } from '@/lib/loan-calculations'
 import { useI18n } from '@/src/i18n/i18n-provider'
+import { useLocalizedCurrency } from '@/hooks/use-localized-currency'
 
 interface LoanSelectorProps {
   loans: Loan[]
@@ -18,6 +19,7 @@ interface LoanSelectorProps {
 
 export function LoanSelector({ loans, activeLoanId, onSelect, onEdit, onDelete, onNew }: LoanSelectorProps) {
   const { t } = useI18n()
+  const { formatCurrency } = useLocalizedCurrency()
 
   if (loans.length === 0) {
     return (
