@@ -12,6 +12,12 @@
     "localeTooltip": "Detección aproximada por IP pública. No se guarda tu IP.",
     "language": "Idioma"
   },
+  "currency": {
+    "estimatedLocal": "Aprox. en moneda local",
+    "rate": "Tipo de cambio",
+    "loading": "Calculando conversión...",
+    "unavailable": "Conversión no disponible"
+  },
   "language": {
     "es": "Español",
     "en": "Inglés",
