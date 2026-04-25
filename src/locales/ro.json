@@ -1,0 +1,114 @@
+{
+  "app": {
+    "title": "Banca Personală",
+    "subtitle": "Administrează împrumuturile personale",
+    "loading": "Se încarcă Banca Personală..."
+  },
+  "nav": {
+    "dashboard": "Panou",
+    "newLoan": "Împrumut nou",
+    "viewReport": "Vezi raportul",
+    "detectingLocation": "Se detectează locația...",
+    "localeTooltip": "Detecție aproximativă prin IP public. IP-ul tău nu este salvat.",
+    "language": "Limbă"
+  },
+  "language": {
+    "es": "Spaniolă",
+    "en": "Engleză",
+    "ro": "Română",
+    "ru": "Rusă"
+  },
+  "empty": {
+    "welcome": "Bun venit la Banca Personală",
+    "description": "Începe prin a crea primul tău împrumut personal",
+    "createFirstLoan": "Creează primul împrumut",
+    "noLoans": "Nu ai împrumuturi înregistrate",
+    "new": "Nou"
+  },
+  "status": {
+    "paid": "Plătit",
+    "partial": "Parțial",
+    "pending": "În așteptare"
+  },
+  "dashboard": {
+    "edit": "Editează",
+    "months": "luni",
+    "monthly": "lunar",
+    "stats": {
+      "totalBorrowed": "Total împrumutat",
+      "monthlyBasePayment": "Plată lunară de bază",
+      "totalProjected": "Total estimat",
+      "totalPaid": "Total plătit",
+      "normalInterest": "Dobândă normală",
+      "extraInterest": "Dobândă extra",
+      "pendingBalance": "Sold restant"
+    },
+    "progress": "Progresul împrumutului",
+    "paid": "Plătit",
+    "total": "Total"
+  },
+  "form": {
+    "editTitle": "Editează împrumutul",
+    "newTitle": "Împrumut nou",
+    "loanName": "Numele împrumutului",
+    "loanNamePlaceholder": "Ex: RTX 5070 TUF",
+    "amount": "Suma împrumutului (MXN)",
+    "term": "Termen în luni",
+    "other": "Altul",
+    "customTermPlaceholder": "Număr de luni",
+    "monthlyInterestRate": "Rată lunară a dobânzii (%)",
+    "interestType": "Tip de dobândă",
+    "flat": "Fixă",
+    "declining": "Pe sold rămas",
+    "flatDescription": "Dobânda se calculează mereu pe suma inițială a împrumutului.",
+    "decliningDescription": "Dobânda se calculează pe soldul rămas și scade în fiecare lună.",
+    "startDate": "Data de început",
+    "sourceAccount": "Cont sursă",
+    "sourceAccountPlaceholder": "Ex: Revolut, BBVA, etc.",
+    "notes": "Note",
+    "notesPlaceholder": "Note suplimentare...",
+    "saveChanges": "Salvează modificările",
+    "createLoan": "Creează împrumut",
+    "cancel": "Anulează",
+    "defaultLoanName": "Împrumut fără nume",
+    "defaultSourceAccount": "Nespecificat"
+  },
+  "selector": {
+    "editLoan": "Editează împrumutul",
+    "deleteLoan": "Șterge împrumutul",
+    "confirmDelete": "Ștergi împrumutul \"{{name}}\"?"
+  },
+  "payments": {
+    "title": "Calendarul plăților",
+    "reset": "Resetează plățile",
+    "month": "Luna",
+    "estimatedDate": "Data estimată",
+    "date": "Data",
+    "principal": "Capital",
+    "interest": "Dobândă",
+    "previousBalance": "Sold anterior",
+    "extraInterest": "Dobândă extra",
+    "total": "Total",
+    "paid": "Plătit",
+    "balance": "Sold",
+    "status": "Stare",
+    "actions": "Acțiuni",
+    "amount": "Sumă",
+    "amountToPay": "Sumă de plătit",
+    "pay": "Plătește",
+    "complete": "Complet",
+    "registerPayment": "Înregistrează plata",
+    "payFull": "Plătește complet"
+  },
+  "reports": {
+    "title": "Raportul împrumutului",
+    "print": "Tipărește / PDF",
+    "csv": "CSV",
+    "html": "HTML",
+    "close": "Închide",
+    "account": "Cont",
+    "start": "Început",
+    "detail": "Detaliul plăților",
+    "generated": "Raport generat la {{date}} • Banca Personală"
+  }
+}
