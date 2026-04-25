@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { CalendarDays, RotateCcw, Check, X } from 'lucide-react'
 import type { Loan, PaymentMonth } from '@/lib/loan-types'
-import { formatCurrency, formatDate } from '@/lib/loan-calculations'
+import { formatDate } from '@/lib/loan-calculations'
 import { useI18n } from '@/src/i18n/i18n-provider'
+import { useLocalizedCurrency } from '@/hooks/use-localized-currency'
 
 interface PaymentTableProps {
   loan: Loan
@@ -31,6 +32,7 @@ function getStatusBadge(status: PaymentMonth['status'], t: (key: string) => stri
 
 export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: PaymentTableProps) {
   const { t } = useI18n()
+  const { formatCurrency } = useLocalizedCurrency()
   const [editingMonth, setEditingMonth] = useState<number | null>(null)
   const [paymentAmount, setPaymentAmount] = useState('')
 
@@ -100,44 +102,20 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
                           placeholder={t('payments.amount')}
                           className="w-24 h-7 text-xs bg-background/50"
                         />
-                        <Button 
-                          size="sm" 
-                          onClick={() => handlePaymentSubmit(index)}
-                          className="h-7 px-2 bg-emerald-500 hover:bg-emerald-600 text-xs"
-                        >
+                        <Button size="sm" onClick={() => handlePaymentSubmit(index)} className="h-7 px-2 bg-emerald-500 hover:bg-emerald-600 text-xs">
                           <Check className="h-3.5 w-3.5" />
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => {
-                            setEditingMonth(null)
-                            setPaymentAmount('')
-                          }}
-                          className="h-7 px-2 text-xs"
-                        >
+                        <Button size="sm" variant="outline" onClick={() => { setEditingMonth(null); setPaymentAmount('') }} className="h-7 px-2 text-xs">
                           <X className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 justify-center">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => {
-                            setEditingMonth(index)
-                            setPaymentAmount(payment.totalDue.toFixed(2))
-                          }}
-                          className="h-7 px-2 text-xs border-border/50"
-                        >
+                        <Button size="sm" variant="outline" onClick={() => { setEditingMonth(index); setPaymentAmount(payment.totalDue.toFixed(2)) }} className="h-7 px-2 text-xs border-border/50">
                           {t('payments.pay')}
                         </Button>
                         {payment.status !== 'pagado' && (
-                          <Button 
-                            size="sm" 
-                            onClick={() => onPayFull(index)}
-                            className="h-7 px-2 text-xs bg-blue-500 hover:bg-blue-600"
-                          >
+                          <Button size="sm" onClick={() => onPayFull(index)} className="h-7 px-2 text-xs bg-blue-500 hover:bg-blue-600">
                             {t('payments.complete')}
                           </Button>
                         )}
@@ -159,91 +137,30 @@ export function PaymentTable({ loan, onPayment, onPayFull, onResetPayments }: Pa
                   {getStatusBadge(payment.status, t)}
                 </div>
                 <p className="text-sm text-muted-foreground">{formatDate(payment.estimatedDate)}</p>
-                
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">{t('payments.principal')}:</span>
-                    <span className="ml-2 text-foreground">{formatCurrency(payment.principal)}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">{t('payments.interest')}:</span>
-                    <span className="ml-2 text-cyan-400">{formatCurrency(payment.normalInterest)}</span>
-                  </div>
+                  <div><span className="text-muted-foreground">{t('payments.principal')}:</span><span className="ml-2 text-foreground">{formatCurrency(payment.principal)}</span></div>
+                  <div><span className="text-muted-foreground">{t('payments.interest')}:</span><span className="ml-2 text-cyan-400">{formatCurrency(payment.normalInterest)}</span></div>
                   {payment.previousBalance > 0 && (
                     <>
-                      <div>
-                        <span className="text-muted-foreground">{t('payments.balance')}:</span>
-                        <span className="ml-2 text-amber-400">{formatCurrency(payment.previousBalance)}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">{t('payments.extraInterest')}:</span>
-                        <span className="ml-2 text-amber-400">{formatCurrency(payment.extraInterest)}</span>
-                      </div>
+                      <div><span className="text-muted-foreground">{t('payments.balance')}:</span><span className="ml-2 text-amber-400">{formatCurrency(payment.previousBalance)}</span></div>
+                      <div><span className="text-muted-foreground">{t('payments.extraInterest')}:</span><span className="ml-2 text-amber-400">{formatCurrency(payment.extraInterest)}</span></div>
                     </>
                   )}
                 </div>
-
                 <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                  <div>
-                    <span className="text-muted-foreground text-sm">{t('payments.total')}:</span>
-                    <span className="ml-2 text-orange-400 font-bold">{formatCurrency(payment.totalDue)}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground text-sm">{t('payments.paid')}:</span>
-                    <span className="ml-2 text-emerald-400 font-bold">{formatCurrency(payment.amountPaid)}</span>
-                  </div>
+                  <div><span className="text-muted-foreground text-sm">{t('payments.total')}:</span><span className="ml-2 text-orange-400 font-bold">{formatCurrency(payment.totalDue)}</span></div>
+                  <div><span className="text-muted-foreground text-sm">{t('payments.paid')}:</span><span className="ml-2 text-emerald-400 font-bold">{formatCurrency(payment.amountPaid)}</span></div>
                 </div>
-
                 {editingMonth === index ? (
                   <div className="flex items-center gap-2 pt-2">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={paymentAmount}
-                      onChange={(e) => setPaymentAmount(e.target.value)}
-                      placeholder={t('payments.amountToPay')}
-                      className="flex-1 bg-background/50"
-                    />
-                    <Button 
-                      size="sm" 
-                      onClick={() => handlePaymentSubmit(index)}
-                      className="bg-emerald-500 hover:bg-emerald-600"
-                    >
-                      <Check className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => {
-                        setEditingMonth(null)
-                        setPaymentAmount('')
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                    <Input type="number" step="0.01" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} placeholder={t('payments.amountToPay')} className="flex-1 bg-background/50" />
+                    <Button size="sm" onClick={() => handlePaymentSubmit(index)} className="bg-emerald-500 hover:bg-emerald-600"><Check className="h-4 w-4" /></Button>
+                    <Button size="sm" variant="outline" onClick={() => { setEditingMonth(null); setPaymentAmount('') }}><X className="h-4 w-4" /></Button>
                   </div>
                 ) : (
                   <div className="flex gap-2 pt-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => {
-                        setEditingMonth(index)
-                        setPaymentAmount(payment.totalDue.toFixed(2))
-                      }}
-                      className="flex-1 border-border/50"
-                    >
-                      {t('payments.registerPayment')}
-                    </Button>
-                    {payment.status !== 'pagado' && (
-                      <Button 
-                        size="sm" 
-                        onClick={() => onPayFull(index)}
-                        className="flex-1 bg-blue-500 hover:bg-blue-600"
-                      >
-                        {t('payments.payFull')}
-                      </Button>
-                    )}
+                    <Button size="sm" variant="outline" onClick={() => { setEditingMonth(index); setPaymentAmount(payment.totalDue.toFixed(2)) }} className="flex-1 border-border/50">{t('payments.registerPayment')}</Button>
+                    {payment.status !== 'pagado' && <Button size="sm" onClick={() => onPayFull(index)} className="flex-1 bg-blue-500 hover:bg-blue-600">{t('payments.payFull')}</Button>}
                   </div>
                 )}
               </CardContent>
