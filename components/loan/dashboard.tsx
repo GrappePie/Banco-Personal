@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Pencil, Wallet, CalendarDays, BarChart3, CheckCircle2, TrendingUp, AlertTriangle, Clock } from 'lucide-react'
 import type { Loan, LoanSummary } from '@/lib/loan-types'
-import { calculateLoanSummary, formatCurrency, formatPercentage } from '@/lib/loan-calculations'
+import { calculateLoanSummary, formatPercentage } from '@/lib/loan-calculations'
 import { useI18n } from '@/src/i18n/i18n-provider'
+import { useLocalizedCurrency } from '@/hooks/use-localized-currency'
 
 interface DashboardProps {
   loan: Loan
@@ -27,6 +28,7 @@ function getStatusBadge(status: LoanSummary['status'], t: (key: string) => strin
 
 export function Dashboard({ loan, onEdit }: DashboardProps) {
   const { t } = useI18n()
+  const { formatCurrency } = useLocalizedCurrency()
   const summary = calculateLoanSummary(loan)
 
   const stats = [
