@@ -3,7 +3,7 @@ import { generateId, getTodayDate, recalculatePayments } from './loan-calculatio
 
 const STORAGE_KEY = 'banco_personal_loans'
 
-// Default loan for initial setup
+// Optional helper for manual testing only. It is not used automatically.
 export function createDefaultLoan(): Loan {
   const loan: Loan = {
     id: generateId(),
@@ -22,26 +22,18 @@ export function createDefaultLoan(): Loan {
   return loan
 }
 
-// Load loans from localStorage
 export function loadLoans(): Loan[] {
   if (typeof window === 'undefined') return []
   
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (!stored) {
-      // Initialize with default loan
-      const defaultLoan = createDefaultLoan()
-      saveLoans([defaultLoan])
-      return [defaultLoan]
-    }
-    return JSON.parse(stored)
+    return stored ? JSON.parse(stored) : []
   } catch (error) {
     console.error('Error loading loans:', error)
     return []
   }
 }
 
-// Save loans to localStorage
 export function saveLoans(loans: Loan[]): void {
   if (typeof window === 'undefined') return
   
@@ -52,7 +44,6 @@ export function saveLoans(loans: Loan[]): void {
   }
 }
 
-// Add a new loan
 export function addLoan(loan: Omit<Loan, 'id' | 'createdAt' | 'payments'>): Loan {
   const newLoan: Loan = {
     ...loan,
@@ -70,7 +61,6 @@ export function addLoan(loan: Omit<Loan, 'id' | 'createdAt' | 'payments'>): Loan
   return newLoan
 }
 
-// Update a loan
 export function updateLoan(updatedLoan: Loan): void {
   const loans = loadLoans()
   const index = loans.findIndex(l => l.id === updatedLoan.id)
@@ -81,14 +71,12 @@ export function updateLoan(updatedLoan: Loan): void {
   }
 }
 
-// Delete a loan
 export function deleteLoan(loanId: string): void {
   const loans = loadLoans()
   const filtered = loans.filter(l => l.id !== loanId)
   saveLoans(filtered)
 }
 
-// Get a single loan
 export function getLoan(loanId: string): Loan | undefined {
   const loans = loadLoans()
   return loans.find(l => l.id === loanId)

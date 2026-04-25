@@ -18,6 +18,17 @@
     "loading": "Calculando conversión...",
     "unavailable": "Conversión no disponible"
   },
+  "reminders": {
+    "enable": "Activar recordatorios",
+    "enabled": "Recordatorios activos",
+    "unsupported": "Notificaciones no compatibles",
+    "blocked": "Notificaciones bloqueadas",
+    "upcoming": "{{count}} pago(s) próximo(s)",
+    "title": "Pago próximo",
+    "bodyToday": "Hoy vence el pago #{{month}} de {{loan}}. Paga antes de que termine el día para evitar interés extra.",
+    "bodySoon": "Faltan {{days}} día(s) para el pago #{{month}} de {{loan}}. Paga a tiempo para evitar interés extra.",
+    "permissionTooltip": "Las notificaciones funcionan en este navegador cuando abras o mantengas abierta la app."
+  },
   "language": {
     "es": "Español",
     "en": "Inglés",
